@@ -1,0 +1,267 @@
+use crate::{bit_slice, RiscvError};
+
+/// Heap allocated implementation of memory.
+pub struct Memory {
+    pub size: usize,
+    mem: Vec<u8>,
+}
+
+impl Memory {
+    /// Allocate a memory with the given size.
+    pub fn new(size: usize) -> Self {
+        assert!(size % 4 == 0);
+        assert!(size > 0);
+
+        Memory {
+            size,
+            mem: vec![0; size],
+        }
+    }
+
+    /// Read a little-endian number.
+    fn read(&self, base: usize, size: usize) -> Result<u32, RiscvError> {
+        // Check if read falls on a word, half-word, or byte boundary.
+        if base % size != 0 {
+            return Err(RiscvError::MemoryAlignmentError);
+        // Check that the read is within bounds.
+        } else if base >= self.size as usize {
+            return Err(RiscvError::MemoryOutOfBoundsError);
+        }
+
+        Ok(self.mem[base..base + size]
+            .iter()
+            .enumerate()
+            .map(|(i, b)| ((*b as u32) << (i * 8)) as u32)
+            .sum())
+    }
+
+    /// Write a little-endian number.
+    fn write(&mut self, base: usize, data: u32, size: usize) -> Result<(), RiscvError> {
+        // Check if read falls on a word, half-word, or byte boundary.
+        if base % size != 0 {
+            return Err(RiscvError::MemoryAlignmentError);
+        // Check that the read is within bounds.
+        } else if base >= self.size as usize {
+            return Err(RiscvError::MemoryOutOfBoundsError);
+        }
+
+        for (i, b) in self.mem[base..base + size].iter_mut().enumerate() {
+            *b = bit_slice!(data, 8 * (i + 1), 8 * i) as u8;
+        }
+
+        Ok(())
+    }
+
+    pub fn program_from_be(&mut self, bytes: &[u8]) -> Result<(), RiscvError> {
+        for (word_addr, chunk) in bytes.chunks(4).enumerate() {
+            for (byte_offset, byte) in chunk.iter().rev().enumerate() {
+                self.write(word_addr * 4 + byte_offset, *byte as u32, 1)
+                    .unwrap();
+            }
+        }
+        Ok(())
+    }
+
+    pub fn program_from_le(&mut self, bytes: &[u8]) -> Result<(), RiscvError> {
+        for (word_addr, chunk) in bytes.chunks(4).enumerate() {
+            for (byte_offset, byte) in chunk.iter().enumerate() {
+                self.write(word_addr * 4 + byte_offset, *byte as u32, 1)
+                    .unwrap();
+            }
+        }
+        Ok(())
+    }
+}
+
+// Implement the trait that allows us to execute instructions on this memory.
+impl super::MemoryTrait for Memory {
+    fn read_word(&self, addr: u32) -> Result<u32, RiscvError> {
+        self.read(addr as usize, 4)
+    }
+
+    fn read_half_word(&self, addr: u32) -> Result<u32, RiscvError> {
+        match self.read(addr as usize, 2) {
+            Ok(d) => Ok(d),
+            Err(why) => Err(why),
+        }
+    }
+    fn read_byte(&self, addr: u32) -> Result<u32, RiscvError> {
+        match self.read(addr as usize, 1) {
+            Ok(d) => Ok(d),
+            Err(why) => Err(why),
+        }
+    }
+
+    fn write_word(&mut self, addr: u32, data: u32) -> Result<(), RiscvError> {
+        self.write(addr as usize, data, 4)
+    }
+
+    fn write_half_word(&mut self, addr: u32, data: u32) -> Result<(), RiscvError> {
+        self.write(addr as usize, data as u32, 2)
+    }
+
+    fn write_byte(&mut self, addr: u32, data: u32) -> Result<(), RiscvError> {
+        self.write(addr as usize, data as u32, 1)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::Memory as MemoryTrait;
+
+    #[test]
+    #[should_panic]
+    fn create_misaligned() {
+        let _ = Memory::new(3);
+    }
+
+    #[test]
+    #[should_panic]
+    fn create_zero() {
+        let _ = Memory::new(0);
+    }
+
+    #[test]
+    fn out_of_bounds() {
+        let mem = Memory::new(1024);
+        match mem.read_byte(1028) {
+            Err(why) => assert_eq!(why, RiscvError::MemoryOutOfBoundsError),
+            _ => panic!(),
+        };
+    }
+
+    #[test]
+    fn misaligned() {
+        let mut mem = Memory::new(1024);
+
+        match mem.read_half_word(3) {
+            Err(why) => assert_eq!(why, RiscvError::MemoryAlignmentError),
+            _ => panic!(),
+        };
+        match mem.read_word(2) {
+            Err(why) => assert_eq!(why, RiscvError::MemoryAlignmentError),
+            _ => panic!(),
+        };
+        match mem.write_half_word(3, 0) {
+            Err(why) => assert_eq!(why, RiscvError::MemoryAlignmentError),
+            _ => panic!(),
+        };
+        match mem.write_word(2, 0) {
+            Err(why) => assert_eq!(why, RiscvError::MemoryAlignmentError),
+            _ => panic!(),
+        };
+    }
+
+    #[test]
+    fn create() {
+        let mem = Memory::new(1024);
+        assert_eq!(1024, mem.size);
+    }
+
+    #[test]
+    fn byte() {
+        let mut mem = Memory::new(1024);
+
+        for data in 0..0xFF {
+            for addr in 0..16 {
+                mem.write_byte(addr, data).unwrap();
+                assert_eq!(data, mem.read_byte(addr).unwrap());
+            }
+        }
+    }
+
+    #[test]
+    fn half_word_write() {
+        const ADDR: u32 = 0x02;
+        let mut mem = Memory::new(1024);
+
+        mem.write_half_word(ADDR, 0x1712).unwrap();
+
+        // Is it little-endian?
+        assert_eq!(mem.mem[ADDR as usize], 0x12);
+        assert_eq!(mem.mem[(ADDR + 1) as usize], 0x17);
+    }
+
+    #[test]
+    fn half_word_read() {
+        const ADDR: u32 = 0x02;
+        let mut mem = Memory::new(1024);
+
+        // mem[ADDR] = 0x1712;
+        mem.mem[ADDR as usize] = 0x12;
+        mem.mem[(ADDR + 1) as usize] = 0x17;
+
+        assert_eq!(0x1712, mem.read_half_word(ADDR).unwrap());
+    }
+
+    #[test]
+    fn half_word_read_write() {
+        const ADDR: u32 = 0x02;
+        let mut mem = Memory::new(1024);
+        for data in 0..0xFFFF {
+            mem.write_half_word(ADDR, data).unwrap();
+            assert_eq!(data, mem.read_half_word(ADDR).unwrap());
+        }
+    }
+
+    #[test]
+    fn word_write() {
+        const ADDR: u32 = 0x04;
+        let mut mem = Memory::new(1024);
+
+        mem.write_word(ADDR, 0x76821712).unwrap();
+
+        // Is it little-endian?
+        assert_eq!(mem.mem[ADDR as usize], 0x12);
+        assert_eq!(mem.mem[(ADDR + 1) as usize], 0x17);
+        assert_eq!(mem.mem[(ADDR + 2) as usize], 0x82);
+        assert_eq!(mem.mem[(ADDR + 3) as usize], 0x76);
+    }
+
+    #[test]
+    fn word_read() {
+        const ADDR: u32 = 0x04;
+        let mut mem = Memory::new(1024);
+
+        // mem[ADDR] = 0x1712;
+        mem.mem[ADDR as usize] = 0x12;
+        mem.mem[(ADDR + 1) as usize] = 0x17;
+        mem.mem[(ADDR + 2) as usize] = 0x82;
+        mem.mem[(ADDR + 3) as usize] = 0x76;
+
+        assert_eq!(0x76821712, mem.read_word(ADDR).unwrap());
+    }
+
+    #[test]
+    fn word_read_write() {
+        const ADDR: u32 = 0x04;
+        let mut mem = Memory::new(1024);
+        for data in 0xFE000000..0xFE100000 {
+            mem.write_word(ADDR, data).unwrap();
+            assert_eq!(data, mem.read_word(ADDR).unwrap());
+        }
+    }
+
+    #[test]
+    fn program_big_endian() {
+        const NUM: u32 = 0x12345678;
+        const BE_BYTES: [u8; 4] = [0x12, 0x34, 0x56, 0x78];
+
+        let mut mem = Memory::new(1024);
+        mem.program_from_be(&BE_BYTES).unwrap();
+
+        assert_eq!(NUM, mem.read_word(0).unwrap());
+    }
+
+    #[test]
+    fn program_little_endian() {
+        const NUM: u32 = 0x12345678;
+        const LE_BYTES: [u8; 4] = [0x78, 0x56, 0x34, 0x12];
+
+        let mut mem = Memory::new(1024);
+        mem.program_from_le(&LE_BYTES).unwrap();
+
+        assert_eq!(NUM, mem.read_word(0).unwrap());
+    }
+}
