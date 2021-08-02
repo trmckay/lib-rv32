@@ -4,7 +4,7 @@
 /// Example:
 ///
 /// ```
-/// # use lib_rv32i::bit_slice;
+/// # use lib_rv32::bit_slice;
 /// bit_slice!(0b1101, 3, 2) == 0b11;
 /// bit_slice!(0b1101, 1) == 0b0;
 /// ```
@@ -24,7 +24,7 @@ macro_rules! bit_slice {
 /// Usage:
 ///
 /// ```
-/// # use lib_rv32i::bit_concat;
+/// # use lib_rv32::bit_concat;
 /// bit_concat!(
 ///     (0b111, 3),
 ///     (0b01, 2)

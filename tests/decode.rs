@@ -1,4 +1,4 @@
-use lib_rv32i::*;
+use lib_rv32::*;
 mod instructions;
 
 #[test]

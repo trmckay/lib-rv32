@@ -1,5 +1,5 @@
 [package]
-name = "lib_rv32i"
+name = "lib_rv32"
 version = "0.1.0"
 edition = "2018"
 
