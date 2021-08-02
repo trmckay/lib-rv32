@@ -1,4 +1,4 @@
-# lib-rv32i
+# lib-rv32
 Rust library for emulating 32-bit RISC-V
 
 ![build](https://github.com/trmckay/lib-rv32i/actions/workflows/build.yml/badge.svg)
