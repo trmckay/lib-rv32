@@ -4,22 +4,8 @@ use lib_rv32i::{exec_one, Memory, RegisterFile};
 
 const MEM_SIZE: u32 = 1024;
 
-macro_rules! mcu_setup {
-    ($name:ident, $ir:expr) => {
-        let mut $name = Mcu::new(MEM_SIZE as usize);
-        let bytes = $ir.to_le_bytes();
-        $name.mem.program_le_bytes(&bytes).unwrap();
-    };
-}
-
-macro_rules! mcu_exec_one {
-    ($name:ident) => {
-        exec_one(&mut $name.pc, &mut $name.mem, &mut $name.rf).unwrap();
-    };
-}
-
 #[test]
-fn program() {
+fn program_mcu() {
     let mut mcu = Mcu::new(MEM_SIZE as usize);
     mcu.mem
         .program_words(instructions::MULTIPLY_PROGRAM)
@@ -35,8 +21,10 @@ fn program() {
 
 #[test]
 fn addi_x5_x5_1() {
-    mcu_setup!(mcu, instructions::ADDI_X5_X5_1);
-    mcu_exec_one!(mcu);
+    let mut mcu = Mcu::new(MEM_SIZE as usize);
+    let bytes = instructions::ADDI_X5_X5_1.to_le_bytes();
+    mcu.mem.program_le_bytes(&bytes).unwrap();
+    exec_one(&mut mcu.pc, &mut mcu.mem, &mut mcu.rf).unwrap();
 
     for i in 0..32 {
         assert_eq!(
@@ -57,8 +45,10 @@ fn addi_x5_x5_1() {
 
 #[test]
 fn addi_x5_x6_neg_1() {
-    mcu_setup!(mcu, instructions::ADDI_X5_X6_NEG_1);
-    mcu_exec_one!(mcu);
+    let mut mcu = Mcu::new(MEM_SIZE as usize);
+    let bytes = instructions::ADDI_X5_X6_NEG_1.to_le_bytes();
+    mcu.mem.program_le_bytes(&bytes).unwrap();
+    exec_one(&mut mcu.pc, &mut mcu.mem, &mut mcu.rf).unwrap();
 
     for i in 0..32 {
         assert_eq!(

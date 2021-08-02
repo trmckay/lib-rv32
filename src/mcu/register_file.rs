@@ -56,9 +56,10 @@ mod tests {
         }
     }
 
+    #[test]
     fn out_of_range() {
         assert_eq!(
-            Err(RiscvError::MemoryOutOfBoundsError(32)),
+            Err(RiscvError::RegisterOutOfRangeError(32)),
             RegisterFile::new().read(32)
         )
     }

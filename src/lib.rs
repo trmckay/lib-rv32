@@ -1,5 +1,3 @@
-#![allow(overflowing_literals)]
-#![allow(arithmetic_overflow)]
 #![allow(dead_code)]
 
 mod bits;
