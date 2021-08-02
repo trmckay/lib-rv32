@@ -22,10 +22,10 @@ impl Memory {
     fn read(&self, base: usize, size: usize) -> Result<u32, RiscvError> {
         // Check if read falls on a word, half-word, or byte boundary.
         if base % size != 0 {
-            return Err(RiscvError::MemoryAlignmentError);
+            return Err(RiscvError::MemoryAlignmentError(base as u32));
         // Check that the read is within bounds.
         } else if base >= self.size as usize {
-            return Err(RiscvError::MemoryOutOfBoundsError);
+            return Err(RiscvError::MemoryOutOfBoundsError(base as u32));
         }
 
         Ok(self.mem[base..base + size]
@@ -39,10 +39,10 @@ impl Memory {
     fn write(&mut self, base: usize, data: u32, size: usize) -> Result<(), RiscvError> {
         // Check if read falls on a word, half-word, or byte boundary.
         if base % size != 0 {
-            return Err(RiscvError::MemoryAlignmentError);
+            return Err(RiscvError::MemoryAlignmentError(base as u32));
         // Check that the read is within bounds.
         } else if base >= self.size as usize {
-            return Err(RiscvError::MemoryOutOfBoundsError);
+            return Err(RiscvError::MemoryOutOfBoundsError(base as u32));
         }
 
         for (i, b) in self.mem[base..base + size].iter_mut().enumerate() {
@@ -52,21 +52,32 @@ impl Memory {
         Ok(())
     }
 
-    pub fn program_from_be(&mut self, bytes: &[u8]) -> Result<(), RiscvError> {
+    pub fn program_be_bytes(&mut self, bytes: &[u8]) -> Result<(), RiscvError> {
         for (word_addr, chunk) in bytes.chunks(4).enumerate() {
             for (byte_offset, byte) in chunk.iter().rev().enumerate() {
-                self.write(word_addr * 4 + byte_offset, *byte as u32, 1)
-                    .unwrap();
+                if let Err(why) = self.write(word_addr * 4 + byte_offset, *byte as u32, 1) {
+                    return Err(why);
+                }
             }
         }
         Ok(())
     }
 
-    pub fn program_from_le(&mut self, bytes: &[u8]) -> Result<(), RiscvError> {
+    pub fn program_le_bytes(&mut self, bytes: &[u8]) -> Result<(), RiscvError> {
         for (word_addr, chunk) in bytes.chunks(4).enumerate() {
             for (byte_offset, byte) in chunk.iter().enumerate() {
-                self.write(word_addr * 4 + byte_offset, *byte as u32, 1)
-                    .unwrap();
+                if let Err(why) = self.write(word_addr * 4 + byte_offset, *byte as u32, 1) {
+                    return Err(why);
+                }
+            }
+        }
+        Ok(())
+    }
+
+    pub fn program_words(&mut self, words: &[u32]) -> Result<(), RiscvError> {
+        for (word_addr, word) in words.iter().enumerate() {
+            if let Err(why) = self.write(word_addr * 4, *word, 4) {
+                return Err(why);
             }
         }
         Ok(())
@@ -126,7 +137,7 @@ mod test {
     fn out_of_bounds() {
         let mem = Memory::new(1024);
         match mem.read_byte(1028) {
-            Err(why) => assert_eq!(why, RiscvError::MemoryOutOfBoundsError),
+            Err(why) => assert_eq!(why, RiscvError::MemoryOutOfBoundsError(1028)),
             _ => panic!(),
         };
     }
@@ -136,19 +147,19 @@ mod test {
         let mut mem = Memory::new(1024);
 
         match mem.read_half_word(3) {
-            Err(why) => assert_eq!(why, RiscvError::MemoryAlignmentError),
+            Err(why) => assert_eq!(why, RiscvError::MemoryAlignmentError(3)),
             _ => panic!(),
         };
         match mem.read_word(2) {
-            Err(why) => assert_eq!(why, RiscvError::MemoryAlignmentError),
+            Err(why) => assert_eq!(why, RiscvError::MemoryAlignmentError(2)),
             _ => panic!(),
         };
         match mem.write_half_word(3, 0) {
-            Err(why) => assert_eq!(why, RiscvError::MemoryAlignmentError),
+            Err(why) => assert_eq!(why, RiscvError::MemoryAlignmentError(3)),
             _ => panic!(),
         };
         match mem.write_word(2, 0) {
-            Err(why) => assert_eq!(why, RiscvError::MemoryAlignmentError),
+            Err(why) => assert_eq!(why, RiscvError::MemoryAlignmentError(2)),
             _ => panic!(),
         };
     }
@@ -249,7 +260,7 @@ mod test {
         const BE_BYTES: [u8; 4] = [0x12, 0x34, 0x56, 0x78];
 
         let mut mem = Memory::new(1024);
-        mem.program_from_be(&BE_BYTES).unwrap();
+        mem.program_be_bytes(&BE_BYTES).unwrap();
 
         assert_eq!(NUM, mem.read_word(0).unwrap());
     }
@@ -260,7 +271,7 @@ mod test {
         const LE_BYTES: [u8; 4] = [0x78, 0x56, 0x34, 0x12];
 
         let mut mem = Memory::new(1024);
-        mem.program_from_le(&LE_BYTES).unwrap();
+        mem.program_le_bytes(&LE_BYTES).unwrap();
 
         assert_eq!(NUM, mem.read_word(0).unwrap());
     }

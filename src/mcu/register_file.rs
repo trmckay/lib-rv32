@@ -1,5 +1,6 @@
 use crate::RiscvError;
 
+#[derive(Default)]
 pub struct RegisterFile {
     registers: [u32; 31],
 }
@@ -13,7 +14,7 @@ impl RegisterFile {
 impl super::RegisterFileTrait for RegisterFile {
     fn write(&mut self, num: u8, data: u32) -> Result<(), RiscvError> {
         if num > 31 {
-            return Err(RiscvError::RegisterOutOfRangeError);
+            return Err(RiscvError::RegisterOutOfRangeError(num));
         } else if num >= 1 {
             self.registers[num as usize - 1] = data;
         }
@@ -24,7 +25,7 @@ impl super::RegisterFileTrait for RegisterFile {
         if num == 0 {
             Ok(0)
         } else if num > 31 {
-            Err(RiscvError::RegisterOutOfRangeError)
+            Err(RiscvError::RegisterOutOfRangeError(num))
         } else {
             Ok(self.registers[num as usize - 1])
         }
@@ -53,5 +54,12 @@ mod tests {
                 assert_eq!(if n == 0 { 0 } else { d }, rf.read(n).unwrap());
             }
         }
+    }
+
+    fn out_of_range() {
+        assert_eq!(
+            Err(RiscvError::MemoryOutOfBoundsError(32)),
+            RegisterFile::new().read(32)
+        )
     }
 }
