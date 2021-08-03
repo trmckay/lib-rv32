@@ -1,13 +1,12 @@
-use std::env;
-use std::io::{self, Write};
-use std::process;
+#[cfg(debug_assertions)]
+use std::{
+    env,
+    io::{self, Write},
+    process,
+};
 
-fn main() {
-    if let Ok(v) = env::var("CI") {
-        if v == "1" {
-            return;
-        }
-    }
+#[cfg(debug_assertions)]
+fn build_tests() {
     let output = process::Command::new("bin/build-tests.sh")
         .output()
         .expect("Failed to execute test build script.");
@@ -16,4 +15,9 @@ fn main() {
     io::stderr().write_all(&output.stderr).unwrap();
 
     assert!(output.status.success());
+}
+
+fn main() {
+    #[cfg(debug_assertions)]
+    build_tests();
 }

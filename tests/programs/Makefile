@@ -10,7 +10,7 @@ AS_OBJ_FILES = $(patsubst $(SRC)/%.s,$(BUILD)/%.o,$(AS_FILES))
 
 LINKER_SCRIPT = ../link.ld
 
-RISCV_PREFIX = riscv32-unknown-linux-gnu-
+RISCV_PREFIX = riscv64-unknown-elf-
 CC = $(RISCV_PREFIX)gcc
 LD = $(RISCV_PREFIX)ld
 OBJCOPY = $(RISCV_PREFIX)objcopy
