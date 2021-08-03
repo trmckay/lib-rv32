@@ -13,7 +13,7 @@ use lib_rv32::{exec_one, Memory, RegisterFile};
 
 const MEM_SIZE: u32 = 1024 * 64; // 64 KB
 
-#[test]
+// #[test]
 fn run_test_programs() {
     for test_dir in glob("./tests/programs/*").expect("No test programs.") {
         if test_dir.as_ref().unwrap().is_dir() {
