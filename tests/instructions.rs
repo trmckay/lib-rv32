@@ -15,39 +15,6 @@ pub const ADD_SAME_REG_FIELDS_IRS: [u32; 32] = [
     0x018c0c33, 0x019c8cb3, 0x01ad0d33, 0x01bd8db3, 0x01ce0e33, 0x01de8eb3, 0x01ef0f33, 0x01ff8fb3,
 ];
 
-/// ```
-/// li a0, 4
-/// li a1, 5
-///
-/// call mul
-/// j end
-/// mul:
-///     mv t0, a0
-///     loop:
-///         addi a1, a1, -1
-///         beq x0, a1, done
-///         add a0, a0, t0
-///     j loop
-///     done:
-///     ret
-///
-/// end:                     
-/// ```
-#[allow(dead_code)]
-pub static MULTIPLY_PROGRAM: &[u32] = &[
-    0x00400513, 0x00500593, 0x00000317, 0x00c300e7, 0x01c0006f, 0x00050293, 0xfff58593, 0x00b00663,
-    0x00550533, 0xff5ff06f, 0x00008067,
-];
-
-/// ```
-/// li t0 4
-/// loop:
-///     addi t0, t0, -1
-///     bnez t0, loop
-/// ```
-#[allow(dead_code)]
-pub static SIMPLE_LOOP: &[u32] = &[0x00400293, 0xfff28293, 0xfe029ee3];
-
 declare_ir!(ADDI_X0_X0_17, 0x01100013);
 declare_ir!(XORI_X5_X6_82, 0x05234293);
 declare_ir!(ADDI_X5_X6_NEG_12, 0xff430293);

@@ -2,7 +2,7 @@
     "max_cycles": 1000,
     "assertions": {
         "registers": {
-            "10": 12
+            "10": 20
         }
     }
 }
