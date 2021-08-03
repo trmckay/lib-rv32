@@ -1,6 +1,6 @@
 use crate::RiscvError;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct RegisterFile {
     registers: [u32; 31],
 }

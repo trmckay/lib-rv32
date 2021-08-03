@@ -1,6 +1,7 @@
 use crate::{bit_slice, RiscvError};
 
 /// Heap allocated implementation of memory.
+#[derive(Clone)]
 pub struct Memory {
     pub size: usize,
     mem: Vec<u8>,

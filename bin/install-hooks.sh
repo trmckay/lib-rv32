@@ -8,7 +8,7 @@ cat << EOF > .git/hooks/pre-commit
 #!/bin/bash
 
 cd $(git rev-parse --show-toplevel)
-rustfmt **/*.rs
+rustfmt --check **/*.rs
 cargo check
 EOF
 

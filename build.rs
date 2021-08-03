@@ -1,6 +1,5 @@
 #[cfg(debug_assertions)]
 use std::{
-    env,
     io::{self, Write},
     process,
 };

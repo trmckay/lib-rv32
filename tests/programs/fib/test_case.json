@@ -1,5 +1,5 @@
 {
-    "max_cycles": 2000,
+    "max_cycles": 3,
     "assertions": {
         "registers": {
             "0": 0

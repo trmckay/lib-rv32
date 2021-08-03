@@ -1,70 +1,8 @@
-use glob::glob;
-use serde::Deserialize;
-use serde_json::Result;
-
-use std::fs;
-use std::fs::File;
-use std::io::BufReader;
-use std::path::Path;
-
 mod instructions;
 use lib_rv32::mcu::Mcu;
 use lib_rv32::{exec_one, Memory, RegisterFile};
 
 const MEM_SIZE: u32 = 1024 * 64; // 64 KB
-
-// #[test]
-fn run_test_programs() {
-    for test_dir in glob("./tests/programs/*").expect("No test programs.") {
-        if test_dir.as_ref().unwrap().is_dir() {
-            let test_bin = glob(&format!(
-                "{}/{}",
-                test_dir.as_ref().unwrap().display(),
-                "/*.bin"
-            ))
-            .unwrap()
-            .last()
-            .unwrap()
-            .unwrap();
-
-            let test_json = glob(&format!(
-                "{}/{}",
-                test_dir.as_ref().unwrap().display(),
-                "/test_case.json"
-            ))
-            .unwrap()
-            .last()
-            .unwrap()
-            .unwrap();
-
-            let json_str = fs::read_to_string(test_json).unwrap();
-            let params: serde_json::Value = serde_json::from_str(&json_str).unwrap();
-
-            let bytes = fs::read(&test_bin).unwrap();
-
-            let max_cycles = params["max_cycles"].as_u64().unwrap();
-
-            let mut mcu = Mcu::new(MEM_SIZE as usize);
-            mcu.mem.program_be_bytes(&bytes).unwrap();
-
-            for _ in 0..max_cycles {
-                if mcu.pc / 4 >= bytes.len() as u32 {
-                    break;
-                }
-                let res = exec_one(&mut mcu.pc, &mut mcu.mem, &mut mcu.rf);
-                if res.is_err() {
-                    panic!(
-                        "{:?}: {}: {:08x}: {:08x}",
-                        res,
-                        &test_bin.display(),
-                        mcu.pc,
-                        mcu.mem.read_word(mcu.pc).unwrap()
-                    );
-                }
-            }
-        }
-    }
-}
 
 #[test]
 fn program_mcu() {

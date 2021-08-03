@@ -1,6 +1,7 @@
 use super::memory::Memory;
 use super::register_file::RegisterFile;
 
+#[derive(Clone)]
 pub struct Mcu {
     pub pc: u32,
     pub mem: Memory,
