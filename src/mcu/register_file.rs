@@ -1,4 +1,5 @@
-use crate::RiscvError;
+use crate::{RiscvError, REG_NAMES};
+use log::info;
 
 #[derive(Default, Clone)]
 pub struct RegisterFile {
@@ -18,6 +19,12 @@ impl super::RegisterFileTrait for RegisterFile {
         } else if num >= 1 {
             self.registers[num as usize - 1] = data;
         }
+
+        info!(
+            "{} <- 0x{:x} ({})",
+            REG_NAMES[num as usize], data, data as i32
+        );
+
         Ok(())
     }
 

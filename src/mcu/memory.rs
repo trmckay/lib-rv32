@@ -1,5 +1,5 @@
 use crate::{bit_slice, RiscvError};
-
+use log::info;
 /// Heap allocated implementation of memory.
 #[derive(Clone)]
 pub struct Memory {
@@ -37,7 +37,19 @@ impl Memory {
     }
 
     /// Write a little-endian number.
-    fn write(&mut self, base: usize, data: u32, size: usize) -> Result<(), RiscvError> {
+    fn write(&mut self, base: usize, data: u32, size: usize, log: bool) -> Result<(), RiscvError> {
+        if log {
+            match size {
+                1 => info!("(byte *)0x{:08x} <- 0x{:x} ({})", base, data, data as i32),
+                2 => info!(
+                    "(half-word *)0x{:08x} <- 0x{:x} ({})",
+                    base, data, data as i32
+                ),
+                4 => info!("(word *)0x{:08x} <- 0x{:x} ({})", base, data, data as i32),
+                _ => (),
+            }
+        }
+
         // Check if read falls on a word, half-word, or byte boundary.
         if base % size != 0 {
             return Err(RiscvError::MemoryAlignmentError(base as u32));
@@ -56,7 +68,7 @@ impl Memory {
     pub fn program_be_bytes(&mut self, bytes: &[u8]) -> Result<(), RiscvError> {
         for (word_addr, chunk) in bytes.chunks(4).enumerate() {
             for (byte_offset, byte) in chunk.iter().rev().enumerate() {
-                if let Err(why) = self.write(word_addr * 4 + byte_offset, *byte as u32, 1) {
+                if let Err(why) = self.write(word_addr * 4 + byte_offset, *byte as u32, 1, false) {
                     return Err(why);
                 }
             }
@@ -67,7 +79,7 @@ impl Memory {
     pub fn program_le_bytes(&mut self, bytes: &[u8]) -> Result<(), RiscvError> {
         for (word_addr, chunk) in bytes.chunks(4).enumerate() {
             for (byte_offset, byte) in chunk.iter().enumerate() {
-                if let Err(why) = self.write(word_addr * 4 + byte_offset, *byte as u32, 1) {
+                if let Err(why) = self.write(word_addr * 4 + byte_offset, *byte as u32, 1, false) {
                     return Err(why);
                 }
             }
@@ -77,7 +89,7 @@ impl Memory {
 
     pub fn program_words(&mut self, words: &[u32]) -> Result<(), RiscvError> {
         for (word_addr, word) in words.iter().enumerate() {
-            if let Err(why) = self.write(word_addr * 4, *word, 4) {
+            if let Err(why) = self.write(word_addr * 4, *word, 4, false) {
                 return Err(why);
             }
         }
@@ -105,15 +117,15 @@ impl super::MemoryTrait for Memory {
     }
 
     fn write_word(&mut self, addr: u32, data: u32) -> Result<(), RiscvError> {
-        self.write(addr as usize, data, 4)
+        self.write(addr as usize, data, 4, true)
     }
 
     fn write_half_word(&mut self, addr: u32, data: u32) -> Result<(), RiscvError> {
-        self.write(addr as usize, data as u32, 2)
+        self.write(addr as usize, data as u32, 2, true)
     }
 
     fn write_byte(&mut self, addr: u32, data: u32) -> Result<(), RiscvError> {
-        self.write(addr as usize, data as u32, 1)
+        self.write(addr as usize, data as u32, 1, true)
     }
 }
 
