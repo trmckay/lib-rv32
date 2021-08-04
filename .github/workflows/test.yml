@@ -19,4 +19,4 @@ jobs:
     - name: Install pre-requisites
       run: sudo apt install gcc-riscv64-unknown-elf binutils-riscv64-unknown-elf
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test -- --nocapture

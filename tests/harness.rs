@@ -69,14 +69,17 @@ fn run_test(dir: &Path) -> Result<(), TestResult> {
 
     loop {
         if mcu.pc >= prog_bytes.len() as u32 {
+            info!("Stopping because the program has exited the text.\n");
             break;
         }
 
         if mcu.pc == stop_pc {
+            info!("Stopping because the stop PC 0x{:x} was reached.\n", mcu.pc);
             break;
         }
 
         if cycles >= max_cycles as u32 {
+            info!("Stopping because the cycle limit was reached.\n");
             break;
         }
 

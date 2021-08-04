@@ -54,7 +54,7 @@ where
             let imm = u_imm!(ir);
 
             info!(
-                "{:22} |  ",
+                "{:25} |  ",
                 format!(
                     "{:6} {}, 0x{:x} ({})",
                     "lui", REG_NAMES[rd as usize], imm, imm as i32
@@ -75,7 +75,7 @@ where
             let imm = u_imm!(ir);
 
             info!(
-                "{:22} |  ",
+                "{:25} |  ",
                 format!(
                     "{:6} {}, 0x{:x}",
                     "auipc",
@@ -98,7 +98,7 @@ where
             let imm = j_imm!(ir);
 
             info!(
-                "{:22} | ",
+                "{:25} |  ",
                 format!(
                     "{:6} {}, 0x{:x} ({})",
                     "jal", REG_NAMES[rd as usize], imm, imm as i32
@@ -121,7 +121,7 @@ where
             let imm = i_imm!(ir);
 
             info!(
-                "{:22} |  ",
+                "{:25} |  ",
                 format!(
                     "{:6} {}, ({}){}",
                     "jalr", REG_NAMES[rd as usize], imm as i32, REG_NAMES[rs1 as usize]
@@ -167,7 +167,7 @@ where
             let imm = b_imm!(ir);
 
             info!(
-                "{:22} |  {}",
+                "{:25} |  {}",
                 format!(
                     "{:6} {}, {}, {}",
                     match func3 {
@@ -183,7 +183,11 @@ where
                     REG_NAMES[rs2 as usize],
                     imm as i32,
                 ),
-                if taken { "(taken)" } else { "(not taken)" }
+                if taken {
+                    "branch taken; "
+                } else {
+                    "branch not taken; "
+                }
             );
 
             if taken {
@@ -209,7 +213,7 @@ where
             let func3 = func3!(ir);
 
             info!(
-                "{:22} |  ",
+                "{:25} |  ",
                 format!(
                     "{:6} {}, {}({})",
                     match func3 {
@@ -263,7 +267,7 @@ where
             let func3 = func3!(ir);
 
             info!(
-                "{:22} |  ",
+                "{:25} |  ",
                 format!(
                     "{:6} {}, {}({})",
                     match func3 {
@@ -379,7 +383,7 @@ where
             };
 
             info!(
-                "{:22} |  ",
+                "{:25} |  ",
                 format!(
                     "{:6} {}, {}, {}",
                     ir_name.to_owned()

@@ -37,12 +37,12 @@ impl Memory {
 
         if log {
             match size {
-                1 => info!("(byte *)0x{:08x} = 0x{:x} ({});", base, data, data as i32),
+                1 => info!("(byte *)0x{:08x} = 0x{:x} ({}); ", base, data, data as i32),
                 2 => info!(
-                    "(half-word *)0x{:08x} = 0x{:x} ({});",
+                    "(half-word *)0x{:08x} = 0x{:x} ({}); ",
                     base, data, data as i32
                 ),
-                4 => info!("(word *)0x{:08x} = 0x{:x} ({});", base, data, data as i32),
+                4 => info!("(word *)0x{:08x} = 0x{:x} ({}); ", base, data, data as i32),
                 _ => (),
             }
         }
@@ -54,12 +54,12 @@ impl Memory {
     fn write(&mut self, base: usize, data: u32, size: usize, log: bool) -> Result<(), RiscvError> {
         if log {
             match size {
-                1 => info!("(byte *)0x{:08x} <- 0x{:x} ({});", base, data, data as i32),
+                1 => info!("(byte *)0x{:08x} <- 0x{:x} ({}); ", base, data, data as i32),
                 2 => info!(
-                    "(half-word *)0x{:08x} <- 0x{:x} ({});",
+                    "(half-word *)0x{:08x} <- 0x{:x} ({}); ",
                     base, data, data as i32
                 ),
-                4 => info!("(word *)0x{:08x} <- 0x{:x} ({});", base, data, data as i32),
+                4 => info!("(word *)0x{:08x} <- 0x{:x} ({}); ", base, data, data as i32),
                 _ => (),
             }
         }
