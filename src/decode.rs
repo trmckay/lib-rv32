@@ -86,9 +86,9 @@ macro_rules! s_imm {
     ($ir:expr) => {
         bit_concat!(
             sized_bit_extend!(bit_slice!($ir, 31), 20),
-            sized_bit_slice!($ir, 30, 25),
+            sized_bit_slice!($ir, 31, 25),
             sized_bit_slice!($ir, 11, 7)
-        ) as i32
+        ) as u32
     };
 }
 

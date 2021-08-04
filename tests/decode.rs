@@ -57,7 +57,13 @@ fn j_imm() {
 fn b_imm() {}
 
 #[test]
-fn s_imm() {}
+fn s_imm() {
+    assert_eq!(0, s_imm!(instructions::SW_X5_0_X5));
+    assert_eq!(16, s_imm!(instructions::SW_X5_16_X5));
+    assert_eq!(-40, s_imm!(instructions::SW_X5_NEG_40_X5) as i32);
+    assert_eq!(-36, s_imm!(instructions::SW_A0_NEG_36_SP) as i32);
+    assert_eq!(-20, s_imm!(instructions::SW_A0_NEG_20_S0) as i32);
+}
 
 #[test]
 fn rs1() {

@@ -51,3 +51,7 @@ declare_ir!(ORI_X5_X5_1, 0x0012e293);
 declare_ir!(ANDI_X5_X5_1, 0x0012f293);
 declare_ir!(SUB_X5_X5_X5, 0x405282b3);
 declare_ir!(ADDI_X6_X0_1, 0x00100313);
+declare_ir!(SW_X5_16_X5, 0x0052a823);
+declare_ir!(SW_X5_NEG_40_X5, 0xfc52ac23);
+declare_ir!(SW_A0_NEG_36_SP, 0xfca42e23);
+declare_ir!(SW_A0_NEG_20_S0, 0xfea42623);
