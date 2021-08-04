@@ -50,6 +50,8 @@ fn run_test(dir: &Path) -> Result<(), TestResult> {
         serde_json::from_str(&fs::read_to_string(test_json_path).unwrap()).unwrap();
 
     let max_cycles = test_params["max_cycles"].as_u64().unwrap();
+    let stop_pc =
+        u32::from_str_radix(&test_params["stop_pc"].as_u64().unwrap().to_string(), 16).unwrap();
 
     let mut register_assertions: Vec<(u8, u32)> = Vec::new();
     for i in 0..32 {
@@ -67,6 +69,10 @@ fn run_test(dir: &Path) -> Result<(), TestResult> {
 
     loop {
         if mcu.pc >= prog_bytes.len() as u32 {
+            break;
+        }
+
+        if mcu.pc == stop_pc {
             break;
         }
 

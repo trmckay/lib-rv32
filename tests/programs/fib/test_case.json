@@ -1,8 +1,0 @@
-{
-    "max_cycles": 0,
-    "assertions": {
-        "registers": {
-            "10": 0
-        }
-    }
-}

@@ -20,7 +20,7 @@ impl Memory {
     }
 
     /// Read a little-endian number.
-    fn read(&self, base: usize, size: usize) -> Result<u32, RiscvError> {
+    fn read(&self, base: usize, size: usize, log: bool) -> Result<u32, RiscvError> {
         // Check if read falls on a word, half-word, or byte boundary.
         if base % size != 0 {
             return Err(RiscvError::MemoryAlignmentError(base as u32));
@@ -29,23 +29,37 @@ impl Memory {
             return Err(RiscvError::MemoryOutOfBoundsError(base as u32));
         }
 
-        Ok(self.mem[base..base + size]
+        let data = self.mem[base..base + size]
             .iter()
             .enumerate()
             .map(|(i, b)| ((*b as u32) << (i * 8)) as u32)
-            .sum())
+            .sum();
+
+        if log {
+            match size {
+                1 => info!("(byte *)0x{:08x} = 0x{:x} ({});", base, data, data as i32),
+                2 => info!(
+                    "(half-word *)0x{:08x} = 0x{:x} ({});",
+                    base, data, data as i32
+                ),
+                4 => info!("(word *)0x{:08x} = 0x{:x} ({});", base, data, data as i32),
+                _ => (),
+            }
+        }
+
+        Ok(data)
     }
 
     /// Write a little-endian number.
     fn write(&mut self, base: usize, data: u32, size: usize, log: bool) -> Result<(), RiscvError> {
         if log {
             match size {
-                1 => info!("(byte *)0x{:08x} <- 0x{:x} ({})", base, data, data as i32),
+                1 => info!("(byte *)0x{:08x} <- 0x{:x} ({});", base, data, data as i32),
                 2 => info!(
-                    "(half-word *)0x{:08x} <- 0x{:x} ({})",
+                    "(half-word *)0x{:08x} <- 0x{:x} ({});",
                     base, data, data as i32
                 ),
-                4 => info!("(word *)0x{:08x} <- 0x{:x} ({})", base, data, data as i32),
+                4 => info!("(word *)0x{:08x} <- 0x{:x} ({});", base, data, data as i32),
                 _ => (),
             }
         }
@@ -99,18 +113,22 @@ impl Memory {
 
 // Implement the trait that allows us to execute instructions on this memory.
 impl super::MemoryTrait for Memory {
+    fn fetch(&self, pc: u32) -> Result<u32, RiscvError> {
+        self.read(pc as usize, 4, false)
+    }
+
     fn read_word(&self, addr: u32) -> Result<u32, RiscvError> {
-        self.read(addr as usize, 4)
+        self.read(addr as usize, 4, true)
     }
 
     fn read_half_word(&self, addr: u32) -> Result<u32, RiscvError> {
-        match self.read(addr as usize, 2) {
+        match self.read(addr as usize, 2, true) {
             Ok(d) => Ok(d),
             Err(why) => Err(why),
         }
     }
     fn read_byte(&self, addr: u32) -> Result<u32, RiscvError> {
-        match self.read(addr as usize, 1) {
+        match self.read(addr as usize, 1, true) {
             Ok(d) => Ok(d),
             Err(why) => Err(why),
         }

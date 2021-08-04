@@ -6,6 +6,7 @@ pub trait RegisterFile {
 }
 
 pub trait Memory {
+    fn fetch(&self, pc: u32) -> Result<u32, RiscvError>;
     fn read_word(&self, addr: u32) -> Result<u32, RiscvError>;
     fn read_half_word(&self, addr: u32) -> Result<u32, RiscvError>;
     fn read_byte(&self, addr: u32) -> Result<u32, RiscvError>;

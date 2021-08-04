@@ -1,5 +1,6 @@
 {
-    "max_cycles": 1000,
+    "max_cycles": 80,
+    "stop_pc": 24,
     "assertions": {
         "registers": {
             "10": 20

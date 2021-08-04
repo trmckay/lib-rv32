@@ -39,12 +39,14 @@ where
     M: Memory,
     R: RegisterFile,
 {
-    let ir = mem.read_word(*pc);
+    let ir = mem.fetch(*pc);
     if let Err(why) = ir {
         return Err(why);
     }
     let ir = ir.unwrap();
     let opcode = opcode!(ir) as u8;
+
+    info!("[{:04x}]  {:08x}  |  ", pc, ir);
 
     return match opcode {
         OPCODE_LUI => {
@@ -52,10 +54,10 @@ where
             let imm = u_imm!(ir);
 
             info!(
-                "{:36} :: ",
+                "{:22} |  ",
                 format!(
-                    "[0x{:08x}] lui  {}, 0x{:x} ({})",
-                    pc, REG_NAMES[rd as usize], imm, imm as i32
+                    "{:6} {}, 0x{:x} ({})",
+                    "lui", REG_NAMES[rd as usize], imm, imm as i32
                 )
             );
 
@@ -73,10 +75,10 @@ where
             let imm = u_imm!(ir);
 
             info!(
-                "{:36} :: ",
+                "{:22} |  ",
                 format!(
-                    "[0x{:08x}] auipc  {}, 0x{:x}",
-                    pc,
+                    "{:6} {}, 0x{:x}",
+                    "auipc",
                     REG_NAMES[rd as usize],
                     (imm >> 12)
                 )
@@ -96,10 +98,10 @@ where
             let imm = j_imm!(ir);
 
             info!(
-                "{:36} :: ",
+                "{:22} | ",
                 format!(
-                    "[0x{:08x}] jal  {}, 0x{:x} ({})",
-                    pc, REG_NAMES[rd as usize], imm, imm as i32
+                    "{:6} {}, 0x{:x} ({})",
+                    "jal", REG_NAMES[rd as usize], imm, imm as i32
                 )
             );
 
@@ -107,6 +109,7 @@ where
                 return Err(why);
             }
             *pc = pc.overflowing_add(imm).0;
+            info!("pc <- 0x{:x}; ", pc);
 
             info!("\n");
             Ok(())
@@ -118,10 +121,10 @@ where
             let imm = i_imm!(ir);
 
             info!(
-                "{:36} :: ",
+                "{:22} |  ",
                 format!(
-                    "[0x{:08x}] jalr  {}, ({}){}",
-                    pc, REG_NAMES[rd as usize], imm as i32, REG_NAMES[rs1 as usize]
+                    "{:6} {}, ({}){}",
+                    "jalr", REG_NAMES[rd as usize], imm as i32, REG_NAMES[rs1 as usize]
                 )
             );
 
@@ -132,7 +135,9 @@ where
             if let Err(why) = rf.write(rd, *pc + 4) {
                 return Err(why);
             }
+
             *pc = rs1_data.overflowing_add(imm).0;
+            info!("pc <- 0x{:x}; ", pc);
 
             info!("\n");
             Ok(())
@@ -162,10 +167,9 @@ where
             let imm = b_imm!(ir);
 
             info!(
-                "{:36} :: {}",
+                "{:22} |  {}",
                 format!(
-                    "[0x{:08x}] {}  {}, {}, {}",
-                    pc,
+                    "{:6} {}, {}, {}",
                     match func3 {
                         FUNC3_BEQ => "beq",
                         FUNC3_BNE => "bne",
@@ -179,11 +183,12 @@ where
                     REG_NAMES[rs2 as usize],
                     imm as i32,
                 ),
-                if taken { "(taken)" } else { "" }
+                if taken { "(taken)" } else { "(not taken)" }
             );
 
             if taken {
                 *pc = pc.overflowing_add(imm).0;
+                info!("pc <- 0x{:x}; ", pc);
             } else {
                 *pc += 4;
             }
@@ -204,10 +209,9 @@ where
             let func3 = func3!(ir);
 
             info!(
-                "{:36} :: ",
+                "{:22} |  ",
                 format!(
-                    "[0x{:08x}] {}  {}, {}({})",
-                    pc,
+                    "{:6} {}, {}({})",
                     match func3 {
                         FUNC3_LB => "lb",
                         FUNC3_LH => "lh",
@@ -259,10 +263,9 @@ where
             let func3 = func3!(ir);
 
             info!(
-                "{:36} :: ",
+                "{:22} |  ",
                 format!(
-                    "[0x{:08x}] {}  {}, {}({})",
-                    pc,
+                    "{:6} {}, {}({})",
                     match func3 {
                         FUNC3_SB => "sb",
                         FUNC3_SH => "sh",
@@ -275,13 +278,13 @@ where
                 )
             );
 
-            let addr = match rf.read(rs2) {
+            let addr = match rf.read(rs1) {
                 Ok(d) => d,
                 Err(why) => return Err(why),
             }
             .overflowing_add(imm)
             .0;
-            let data = match rf.read(rs1) {
+            let data = match rf.read(rs2) {
                 Ok(d) => d,
                 Err(why) => return Err(why),
             };
@@ -376,16 +379,15 @@ where
             };
 
             info!(
-                "{:36} :: ",
+                "{:22} |  ",
                 format!(
-                    "[0x{:08x}] {}{}  {}, {}, {}",
-                    pc,
-                    ir_name,
-                    match opcode {
-                        OPCODE_ARITHMETIC => "",
-                        OPCODE_ARITHMETIC_IMM => "i",
-                        _ => "?",
-                    },
+                    "{:6} {}, {}, {}",
+                    ir_name.to_owned()
+                        + match opcode {
+                            OPCODE_ARITHMETIC => "",
+                            OPCODE_ARITHMETIC_IMM => "i",
+                            _ => "?",
+                        },
                     REG_NAMES[rd as usize],
                     REG_NAMES[rs1 as usize],
                     match opcode {
