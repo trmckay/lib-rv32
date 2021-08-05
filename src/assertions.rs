@@ -30,7 +30,7 @@ impl Assertions {
     /// }
     /// ```
     ///
-    /// ```
+    /// ```no_run
     /// # use lib_rv32::Assertions;
     /// use std::path::PathBuf;
     ///
