@@ -3,14 +3,13 @@
 mod bits;
 mod error;
 mod exec;
-mod traits;
 
 pub mod decode;
 pub mod mcu;
+pub mod traits;
 
 pub use error::RiscvError;
 pub use exec::exec_one;
-pub use traits::{Memory, RegisterFile};
 
 pub static REG_NAMES: &[&str] = &[
     "zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0", "s1", "a0", "a1", "a2", "a3", "a4",

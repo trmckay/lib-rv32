@@ -1,6 +1,6 @@
 mod instructions;
 use lib_rv32::mcu::Mcu;
-use lib_rv32::{exec_one, Memory, RegisterFile};
+use lib_rv32::{exec_one, mcu::*};
 
 const MEM_SIZE: u32 = 1024 * 64; // 64 KB
 

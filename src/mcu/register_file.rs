@@ -1,3 +1,4 @@
+pub use crate::traits::RegisterFile as RegisterFileTrait;
 use crate::{RiscvError, REG_NAMES};
 use log::info;
 
@@ -12,7 +13,7 @@ impl RegisterFile {
     }
 }
 
-impl super::RegisterFileTrait for RegisterFile {
+impl RegisterFileTrait for RegisterFile {
     fn write(&mut self, num: u8, data: u32) -> Result<(), RiscvError> {
         if num > 31 {
             return Err(RiscvError::RegisterOutOfRangeError(num));
@@ -42,7 +43,6 @@ impl super::RegisterFileTrait for RegisterFile {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::RegisterFile as RegisterFileTrait;
 
     #[test]
     fn zero() {

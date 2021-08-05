@@ -3,8 +3,8 @@ use glob::glob;
 use std::fs;
 use std::path::Path;
 
-use lib_rv32::mcu::Mcu;
-use lib_rv32::{exec_one, RegisterFile, RiscvError, REG_NAMES};
+use lib_rv32::mcu::*;
+use lib_rv32::{exec_one, RiscvError, REG_NAMES};
 
 const MEM_SIZE: u32 = 0x10000;
 

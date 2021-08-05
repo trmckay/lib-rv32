@@ -1,3 +1,4 @@
+pub use crate::traits::Memory as MemoryTrait;
 use crate::{bit_slice, RiscvError};
 use log::info;
 use std::fs;
@@ -122,7 +123,7 @@ impl Memory {
 }
 
 // Implement the trait that allows us to execute instructions on this memory.
-impl super::MemoryTrait for Memory {
+impl MemoryTrait for Memory {
     fn fetch(&self, pc: u32) -> Result<u32, RiscvError> {
         self.read(pc as usize, 4, false)
     }
@@ -160,7 +161,6 @@ impl super::MemoryTrait for Memory {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::Memory as MemoryTrait;
 
     #[test]
     #[should_panic]

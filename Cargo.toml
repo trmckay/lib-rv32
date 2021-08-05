@@ -1,9 +1,20 @@
 [package]
 name = "lib_rv32"
+authors = ["Trevor McKay <tm@trmckay.com>"]
 version = "0.1.0"
 edition = "2018"
 
 [dependencies]
 serde_json = "*"
+lazy_static = "1.4.0"
 glob = "0.3.0"
 log = "*"
+clap = "2.33.3"
+
+[lib]
+name = "lib_rv32"
+path = "src/lib.rs"
+
+[[bin]]
+name = "lib_rv32_cli"
+path = "src/bin.rs"

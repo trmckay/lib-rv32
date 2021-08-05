@@ -1,6 +1,6 @@
 use crate::decode::*;
 use crate::{b_imm, func3, func7, i_imm, j_imm, opcode, rd, rs1, rs2, s_imm, u_imm};
-use crate::{Memory, RegisterFile, RiscvError, REG_NAMES};
+use crate::{traits::Memory, traits::RegisterFile, RiscvError, REG_NAMES};
 
 use log::info;
 
