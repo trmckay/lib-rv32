@@ -17,6 +17,28 @@ However, reference implementations are provided in `lib_rv32::mcu`. The library 
 functions to read from the memory, registers, and step a single instruction. Since, the
 user decides when to call these functions, these will probably fit most use-cases.
 
+### Example
+
+`my_app.rs`:
+```rust
+use std::path::Path;
+
+use lib_rv32::mcu::*;
+use lib_rv32::exec_one;
+
+fn main() {
+    let mut mcu: Mcu = Mcu::new(1024 * 64);
+    
+    mcu.mem
+        .program_from_file(&Path::from("./prog.bin"))
+        .expect("Could not program MCU.");
+
+    loop {
+        exec_one(&mut mcu.pc, &mut mcu.mem, &mut mcu.rf).unwrap();
+    }
+}
+```
+
 ---
 ## CLI
 
