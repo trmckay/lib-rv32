@@ -3,7 +3,7 @@
     "stop_pc": 24,
     "assertions": {
         "registers": {
-            "10": 20
+            "a0": 20
         }
     }
 }

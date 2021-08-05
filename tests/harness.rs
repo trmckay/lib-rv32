@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 
 use lib_rv32::mcu::Mcu;
-use lib_rv32::{exec_one, RegisterFile, RiscvError};
+use lib_rv32::{exec_one, RegisterFile, RiscvError, REG_NAMES};
 
 const MEM_SIZE: u32 = 0x10000;
 
@@ -54,9 +54,9 @@ fn run_test(dir: &Path) -> Result<(), TestResult> {
         u32::from_str_radix(&test_params["stop_pc"].as_u64().unwrap().to_string(), 16).unwrap();
 
     let mut register_assertions: Vec<(u8, u32)> = Vec::new();
-    for i in 0..32 {
-        if let Some(d) = test_params["assertions"]["registers"][format!("{}", i)].as_u64() {
-            register_assertions.push((i, d as u32));
+    for (i, name) in REG_NAMES.iter().enumerate() {
+        if let Some(d) = test_params["assertions"]["registers"][*name].as_u64() {
+            register_assertions.push((i as u8, d as u32));
         }
     }
 
