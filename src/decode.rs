@@ -38,6 +38,7 @@ pub const FUNC7_SUB: u8 = 0b0100000;
 pub const FUNC7_SRA: u8 = 0b0000000;
 pub const FUNC7_SRL: u8 = 0b0100000;
 
+/// Decode the J-type immediate from a `u32` formatted instruction.
 #[macro_export]
 macro_rules! j_imm {
     ($ir:expr) => {
@@ -51,6 +52,7 @@ macro_rules! j_imm {
     };
 }
 
+/// Decode the U-type immediate from a `u32` formatted instruction.
 #[macro_export]
 macro_rules! u_imm {
     ($ir:expr) => {
@@ -58,6 +60,7 @@ macro_rules! u_imm {
     };
 }
 
+/// Decode the B-type immediate from a `u32` formatted instruction.
 #[macro_export]
 macro_rules! b_imm {
     ($ir:expr) => {
@@ -71,6 +74,7 @@ macro_rules! b_imm {
     };
 }
 
+/// Decode the I-type immediate from a `u32` formatted instruction.
 #[macro_export]
 macro_rules! i_imm {
     ($ir:expr) => {
@@ -81,6 +85,7 @@ macro_rules! i_imm {
     };
 }
 
+/// Decode the S-type immediate from a `u32` formatted instruction.
 #[macro_export]
 macro_rules! s_imm {
     ($ir:expr) => {
@@ -92,6 +97,7 @@ macro_rules! s_imm {
     };
 }
 
+/// Decode the FUNC3 field from a `u32` formatted instruction.
 #[macro_export]
 macro_rules! func3 {
     ($ir:expr) => {
@@ -99,6 +105,7 @@ macro_rules! func3 {
     };
 }
 
+/// Decode the FUNC7 field from a `u32` formatted instruction.
 #[macro_export]
 macro_rules! func7 {
     ($ir:expr) => {
@@ -106,6 +113,7 @@ macro_rules! func7 {
     };
 }
 
+/// Decode the destination register field from a `u32` formatted instruction.
 #[macro_export]
 macro_rules! rd {
     ($ir:expr) => {
@@ -113,6 +121,7 @@ macro_rules! rd {
     };
 }
 
+/// Decode the first operand register field from a `u32` formatted instruction.
 #[macro_export]
 macro_rules! rs1 {
     ($ir:expr) => {
@@ -120,6 +129,7 @@ macro_rules! rs1 {
     };
 }
 
+/// Decode the second operand register field from a `u32` formatted instruction.
 #[macro_export]
 macro_rules! rs2 {
     ($ir:expr) => {
@@ -127,6 +137,7 @@ macro_rules! rs2 {
     };
 }
 
+/// Decode the opcode field from a `u32` formatted instruction.
 #[macro_export]
 macro_rules! opcode {
     ($ir:expr) => {

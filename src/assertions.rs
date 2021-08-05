@@ -1,16 +1,41 @@
 use std::fs;
 use std::path::Path;
 
+use crate::traits::*;
 use crate::util::parse_int;
 use crate::REG_NAMES;
-use crate::{traits::*, util};
 
+/// Used to contain a set of assertions about the state of an MCU.
 pub struct Assertions {
     pub register_assertions: Vec<(u8, u32, bool)>,
     pub memory_assertions: Vec<(u32, u32, bool)>,
 }
 
 impl Assertions {
+    /// Construct an `Assertion` from a JSON file.
+    ///
+    /// Example:
+    ///
+    /// In `assert.json`:
+    /// ```json
+    /// {
+    ///     "registers": {
+    ///         "a0": "10",
+    ///         "t0": "0"
+    ///     },
+    ///     "memory": {
+    ///         "0x1000": "0x10",
+    ///         "0x1004": "0x4"
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// ```
+    /// # use lib_rv32::Assertions;
+    /// use std::path::PathBuf;
+    ///
+    /// let asserts = Assertions::load(&PathBuf::from("assert.json"));
+    /// ```
     pub fn load(path: &Path) -> Self {
         let test_params: serde_json::Value =
             serde_json::from_str(&fs::read_to_string(path).unwrap()).unwrap();
@@ -39,6 +64,9 @@ impl Assertions {
         }
     }
 
+    /// Iterate through all assertions and compare their expected values
+    /// with the actual. If the assertion fails, the third member of the
+    /// tuple is populated with `false`.
     pub fn assert_all<M, R>(&mut self, mem: &mut M, rf: &mut R)
     where
         M: Memory,

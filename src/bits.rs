@@ -1,4 +1,4 @@
-/// Macro to help with bit level access to integers. Usage
+/// Macro to help with bit level access to integers. Example
 /// attempts to mimic Verilog syntax.
 ///
 /// Example:
@@ -21,7 +21,7 @@ macro_rules! bit_slice {
 
 /// Concatenate the bits of integers.
 ///
-/// Usage:
+/// Example:
 ///
 /// ```
 /// # use lib_rv32::bit_concat;
@@ -43,7 +43,14 @@ macro_rules! bit_concat {
     }}
 }
 
-/// Duplicate a bit.
+/// Extend a bit (useful for sign extension).
+///
+/// Example:
+///
+/// ```
+/// # use lib_rv32::bit_extend;
+/// bit_extend!(0b1, 8) == 0b1111_1111;
+/// ```
 #[macro_export]
 macro_rules! bit_extend {
     ($n:expr, $r:expr) => {
@@ -54,7 +61,8 @@ macro_rules! bit_extend {
     };
 }
 
-/// Helpful when concatenating multiple bit slices.
+/// Like `bit_slice`, but outputs the result and its
+/// size in a tuple.
 #[macro_export]
 macro_rules! sized_bit_slice {
     ($n: expr, $i:expr) => {
@@ -66,6 +74,8 @@ macro_rules! sized_bit_slice {
     };
 }
 
+/// Like `bit_extend`, but outputs the result and its
+/// size in a tuple.
 #[macro_export]
 macro_rules! sized_bit_extend {
     ($n: expr, $r:expr) => {

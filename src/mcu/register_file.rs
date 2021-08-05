@@ -2,14 +2,17 @@ pub use crate::traits::RegisterFile as RegisterFileTrait;
 use crate::{RiscvError, REG_NAMES};
 use log::info;
 
+/// Heap allocated implementation of a register file.
 #[derive(Default, Clone)]
 pub struct RegisterFile {
-    registers: [u32; 31],
+    registers: Vec<u32>,
 }
 
 impl RegisterFile {
     pub fn new() -> Self {
-        RegisterFile { registers: [0; 31] }
+        RegisterFile {
+            registers: vec![0; 31],
+        }
     }
 }
 

@@ -3,7 +3,8 @@ use crate::{bit_slice, RiscvError};
 use log::info;
 use std::fs;
 use std::path::Path;
-/// Heap allocated implementation of memory.
+
+/// Heap allocated, little-endian implementation of memory.
 #[derive(Clone)]
 pub struct Memory {
     pub size: usize,
@@ -22,7 +23,7 @@ impl Memory {
         }
     }
 
-    /// Read a little-endian number.
+    /// Read a little-endian number from a byte-vector of arbitrary size.
     fn read(&self, base: usize, size: usize, log: bool) -> Result<u32, RiscvError> {
         // Check if read falls on a word, half-word, or byte boundary.
         if base % size != 0 {
@@ -53,7 +54,7 @@ impl Memory {
         Ok(data)
     }
 
-    /// Write a little-endian number.
+    /// Write a little-endian number of arbitrary size.
     fn write(&mut self, base: usize, data: u32, size: usize, log: bool) -> Result<(), RiscvError> {
         if log {
             match size {
@@ -82,6 +83,7 @@ impl Memory {
         Ok(())
     }
 
+    /// Program the memory from a vector of big-endian bytes.
     pub fn program_be_bytes(&mut self, bytes: &[u8]) -> Result<(), RiscvError> {
         for (word_addr, chunk) in bytes.chunks(4).enumerate() {
             for (byte_offset, byte) in chunk.iter().rev().enumerate() {
@@ -93,6 +95,7 @@ impl Memory {
         Ok(())
     }
 
+    /// Program the memory from a vector of little-endian bytes.
     pub fn program_le_bytes(&mut self, bytes: &[u8]) -> Result<(), RiscvError> {
         for (word_addr, chunk) in bytes.chunks(4).enumerate() {
             for (byte_offset, byte) in chunk.iter().enumerate() {
@@ -104,6 +107,7 @@ impl Memory {
         Ok(())
     }
 
+    /// Program the memory from a vector of 32-bit words.
     pub fn program_words(&mut self, words: &[u32]) -> Result<(), RiscvError> {
         for (word_addr, word) in words.iter().enumerate() {
             if let Err(why) = self.write(word_addr * 4, *word, 4, false) {
@@ -113,6 +117,7 @@ impl Memory {
         Ok(())
     }
 
+    /// Program the memory from a binary file generally created by gcc or clang.
     pub fn program_from_file(&mut self, path: &Path) -> Result<u32, RiscvError> {
         let prog_bytes = fs::read(&path).expect("Could not read binary.");
         match self.program_le_bytes(&prog_bytes) {
