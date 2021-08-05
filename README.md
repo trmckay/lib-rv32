@@ -133,6 +133,31 @@ During testing, Cargo will for each test:
 5. Make assertions
 6. Report succes or failure
 
+If a test fails, it will describe the error that caused the crash or the assertion that failed
+and print an object dump of the compiled test binary:
+
+```
+...
+[001c]  f0028293  |  addi   t0, t0, -256       |  t0 <- 0xf00 (3840); 
+[0020]  00a2a023  |  sw     a0, 0(t0)          |  (word *)0x00000f00 <- 0x14 (20); 
+Stopping because the stop PC 0x24 was reached.
+
+
+Failed test: tests/programs/mul@0x00000024: Register assertion failed: (x10=0x00000014) != 0x00000018.
+
+prog.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text.init:
+
+00000000 <start>:
+   0:   00010117                auipc   sp,0x10
+   4:   fe010113                addi    sp,sp,-32 # ffe0 <__global_pointer$+0xf75c>
+   8:   00400513                li      a0,4
+   c:   00500593                li      a1,5
+...
+```
+
 Tests are run in CI, but can be run locally provided your system has `riscv(32|64)-unknown-elf-gcc`.
 
 ## TODO
