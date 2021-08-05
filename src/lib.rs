@@ -1,13 +1,16 @@
 #![allow(dead_code)]
 
+mod assertions;
 mod bits;
 mod error;
 mod exec;
+mod util;
 
 pub mod decode;
 pub mod mcu;
 pub mod traits;
 
+pub use assertions::Assertions;
 pub use error::RiscvError;
 pub use exec::exec_one;
 

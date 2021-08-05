@@ -16,5 +16,5 @@ name = "lib_rv32"
 path = "src/lib.rs"
 
 [[bin]]
-name = "lib_rv32_cli"
+name = "lrv-cli"
 path = "src/bin.rs"
