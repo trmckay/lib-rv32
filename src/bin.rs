@@ -143,6 +143,7 @@ fn main() {
                 );
             }
         }
+        println!();
 
         for assert in assertions.memory_assertions {
             if assert.2 {
