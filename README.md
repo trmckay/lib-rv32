@@ -5,6 +5,10 @@ Rust library for emulating 32-bit RISC-V
 ![build](https://github.com/trmckay/lib-rv32i/actions/workflows/build.yml/badge.svg)
 ![tests](https://github.com/trmckay/lib-rv32i/actions/workflows/test.yml/badge.svg)
 
+[**Documentation** on docs.rs](https://docs.rs/lib_rv32)
+
+[**Packaged** on crates.io](https://crates.io/crates/lib_rv32)
+
 ---
 
 ## Libray
@@ -28,7 +32,7 @@ use lib_rv32::exec_one;
 
 fn main() {
     let mut mcu: Mcu = Mcu::new(1024 * 64);
-    
+
     mcu.mem
         .program_from_file(&Path::from("./prog.bin"))
         .expect("Could not program MCU.");
@@ -44,8 +48,10 @@ fn main() {
 
 ### Usage
 
+The CLI is one example of how the core library can be used in an application.
 The primary use of the CLI is tracing execution of RISC-V programs and making assertions
-about their behavior.
+about their behavior. It currently only supports simple binary memory images
+(not ELF binaries).
 
 ```
 USAGE:
@@ -91,20 +97,20 @@ This will execute `prog.bin`, stop at the PC value 0x24, and then make the asser
 
 The program will trace the execution instruction-by-instruction:
 ```
-[0000]  00010117  |  auipc  sp, 0x10           |  sp <- 0x10000 (65536); 
-[0004]  fe010113  |  addi   sp, sp, -32        |  sp <- 0xffe0 (65504); 
-[0008]  00400513  |  addi   a0, zero, 4        |  a0 <- 0x4 (4); 
-[000c]  00500593  |  addi   a1, zero, 5        |  a1 <- 0x5 (5); 
-[0010]  00000097  |  auipc  ra, 0x0            |  ra <- 0x10 (16); 
-[0014]  018080e7  |  jalr   ra, (24)ra         |  ra <- 0x18 (24); pc <- 0x28; 
+[0000]  00010117  |  auipc  sp, 0x10           |  sp <- 0x10000 (65536);
+[0004]  fe010113  |  addi   sp, sp, -32        |  sp <- 0xffe0 (65504);
+[0008]  00400513  |  addi   a0, zero, 4        |  a0 <- 0x4 (4);
+[000c]  00500593  |  addi   a1, zero, 5        |  a1 <- 0x5 (5);
+[0010]  00000097  |  auipc  ra, 0x0            |  ra <- 0x10 (16);
+[0014]  018080e7  |  jalr   ra, (24)ra         |  ra <- 0x18 (24); pc <- 0x28;
 ...
 ```
 
 When complete, it will summarize results:
 ```
 ...
-[001c]  f0028293  |  addi   t0, t0, -256       |  t0 <- 0xf00 (3840); 
-[0020]  00a2a023  |  sw     a0, 0(t0)          |  (word *)0x00000f00 <- 0x14 (20); 
+[001c]  f0028293  |  addi   t0, t0, -256       |  t0 <- 0xf00 (3840);
+[0020]  00a2a023  |  sw     a0, 0(t0)          |  (word *)0x00000f00 <- 0x14 (20);
 
 Reached stop-PC.
 
@@ -138,8 +144,8 @@ and print an object dump of the compiled test binary:
 
 ```
 ...
-[001c]  f0028293  |  addi   t0, t0, -256       |  t0 <- 0xf00 (3840); 
-[0020]  00a2a023  |  sw     a0, 0(t0)          |  (word *)0x00000f00 <- 0x14 (20); 
+[001c]  f0028293  |  addi   t0, t0, -256       |  t0 <- 0xf00 (3840);
+[0020]  00a2a023  |  sw     a0, 0(t0)          |  (word *)0x00000f00 <- 0x14 (20);
 Stopping because the stop PC 0x24 was reached.
 
 
@@ -168,3 +174,4 @@ Tests are run in CI, but can be run locally provided your system has `riscv(32|6
 - [ ] Multiply (m)
 - [ ] Atomics (a)
 - [ ] Compressed (c)
+- [ ] Support ELF binaries
