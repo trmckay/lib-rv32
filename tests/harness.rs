@@ -38,8 +38,7 @@ struct TestResult {
 
 fn run_test(dir: &Path) -> Result<(), TestResult> {
     let test_bin_path_str = format!("{}/prog.bin", dir.display());
-    let test_bin = Path::new(&test_bin_path_str);
-    let prog_bytes = fs::read(&test_bin).unwrap();
+    let test_bin_path = Path::new(&test_bin_path_str);
 
     let test_dump_path_str = format!("{}/dump.txt", dir.display());
     let test_dump_path = Path::new(&test_dump_path_str);
@@ -63,12 +62,12 @@ fn run_test(dir: &Path) -> Result<(), TestResult> {
     info!("{}:\n", test_bin_path_str);
 
     let mut mcu = Mcu::new(MEM_SIZE as usize);
-    mcu.mem.program_le_bytes(&prog_bytes).unwrap();
+    let prog_len = mcu.mem.program_from_file(test_bin_path).unwrap();
 
     let mut cycles = 0;
 
     loop {
-        if mcu.pc >= prog_bytes.len() as u32 {
+        if mcu.pc >= prog_len as u32 {
             info!("Stopping because the program has exited the text.\n");
             break;
         }

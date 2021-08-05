@@ -1,5 +1,7 @@
 use crate::{bit_slice, RiscvError};
 use log::info;
+use std::fs;
+use std::path::Path;
 /// Heap allocated implementation of memory.
 #[derive(Clone)]
 pub struct Memory {
@@ -108,6 +110,14 @@ impl Memory {
             }
         }
         Ok(())
+    }
+
+    pub fn program_from_file(&mut self, path: &Path) -> Result<u32, RiscvError> {
+        let prog_bytes = fs::read(&path).expect("Could not read binary.");
+        match self.program_le_bytes(&prog_bytes) {
+            Err(why) => Err(why),
+            Ok(_) => Ok(prog_bytes.len() as u32),
+        }
     }
 }
 
