@@ -1,3 +1,8 @@
+use std::fs;
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::{self, BufReader};
+
 use std::path::PathBuf;
 
 use clap::{App, Arg};
@@ -5,7 +10,7 @@ use lazy_static::lazy_static;
 use log::info;
 use log::{Level, LevelFilter, Metadata, Record};
 
-use lib_rv32::{constants::*, exec_one, mcu::*, Assertions};
+use lib_rv32::{assembler::*, constants::*, exec_one, mcu::*, Assertions};
 
 const DEFAULT_MEM_SIZE: usize = 1024 * 64;
 
@@ -15,12 +20,17 @@ lazy_static! {
 
 static LOGGER: Logger = Logger;
 
+enum Mode {
+    Emulator,
+    Assembler,
+}
+
 struct Config {
-    verbose: bool,
-    binary: PathBuf,
+    file: PathBuf,
     mem_size: usize,
     stop_pc: Option<u32>,
     assertions: Option<PathBuf>,
+    mode: Mode,
 }
 
 impl Config {
@@ -30,8 +40,8 @@ impl Config {
             .author("Trevor McKay <tm@trmckay.com>")
             .about("Emulate RISC-V")
             .arg(
-                Arg::with_name("binary")
-                    .help("RISC-V binary to execute")
+                Arg::with_name("file")
+                    .help("File on which to act.")
                     .required(true)
                     .index(1),
             )
@@ -63,7 +73,23 @@ impl Config {
                 Arg::with_name("verbose")
                     .short("v")
                     .long("verbose")
-                    .help("Enable verbose logging"),
+                    .help("Enable verbose logging")
+                    .takes_value(false),
+            )
+            .arg(
+                Arg::with_name("assemble")
+                    .short("c")
+                    .long("--assemble")
+                    .help("Launch in assembler mode.")
+                    .takes_value(false),
+            )
+            .arg(
+                Arg::with_name("emulate")
+                    .short("e")
+                    .long("--emulate")
+                    .default_value("e")
+                    .help("Launch in emulator mode.")
+                    .takes_value(false),
             )
             .get_matches();
 
@@ -76,15 +102,32 @@ impl Config {
                 .unwrap_or_else(|_| panic!("{} is not a valid hex literal.", s))
         });
         let verbose = !matches!(matches.occurrences_of("verbose"), 0);
-        let path = PathBuf::from(matches.value_of("binary").unwrap());
+        let path = PathBuf::from(matches.value_of("file").unwrap());
         let assertions = matches.value_of("assertions").map(PathBuf::from);
 
+        let mode: Mode = if matches.occurrences_of("emulate") == 1 {
+            Mode::Emulator
+        } else if matches.occurrences_of("assemble") == 1 {
+            Mode::Assembler
+        } else {
+            panic!("No mode provided.");
+        };
+        if matches.occurrences_of("emulate") == matches.occurrences_of("assemble") {
+            panic!("Cannot launch in both modes.");
+        }
+
+        if verbose {
+            log::set_logger(&LOGGER)
+                .map(|()| log::set_max_level(LevelFilter::Info))
+                .unwrap();
+        }
+
         Config {
-            verbose,
-            binary: path,
+            file: path,
             mem_size,
             stop_pc,
             assertions,
+            mode,
         }
     }
 }
@@ -105,18 +148,12 @@ impl log::Log for Logger {
     fn flush(&self) {}
 }
 
-fn main() {
-    if CFG.verbose {
-        log::set_logger(&LOGGER)
-            .map(|()| log::set_max_level(LevelFilter::Info))
-            .unwrap();
-    }
-
+fn emu() {
     let assertions = CFG.assertions.as_ref().map(|p| Assertions::load(p));
 
     let mut mcu: Mcu = Mcu::new(CFG.mem_size);
     mcu.mem
-        .program_from_file(&CFG.binary)
+        .program_from_file(&CFG.file)
         .expect("Could not program MCU.");
 
     loop {
@@ -157,5 +194,18 @@ fn main() {
                 );
             }
         }
+    }
+}
+
+fn asm() {
+    let file = fs::File::open(&CFG.file).unwrap();
+    let mut reader = BufReader::new(file);
+    let _vec = assemble_buf(&mut reader).unwrap();
+}
+
+fn main() {
+    match CFG.mode {
+        Mode::Assembler => asm(),
+        Mode::Emulator => emu(),
     }
 }

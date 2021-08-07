@@ -1,9 +1,11 @@
 use crate::{
     constants::*, encode_b_imm, encode_func3, encode_func7, encode_i_imm, encode_j_imm,
-    encode_opcode, encode_rd, encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, parse_int,
+    encode_opcode, encode_rd, encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, error, parse_int,
     AssemblerError,
 };
-use std::{collections::HashMap, io, io::prelude::*};
+use std::{collections::HashMap, io::prelude::*};
+
+use log::{error, info};
 
 enum InstructionFormat {
     Itype,
@@ -19,6 +21,7 @@ enum InstructionFormat {
 macro_rules! tokenize {
     ($s:expr) => {
         $s.replace(",", " ")
+            .replace("\n", " ")
             .replace("(", " ")
             .replace(")", " ")
             .to_ascii_lowercase()
@@ -58,13 +61,60 @@ fn match_register(reg: &str) -> Result<u8, AssemblerError> {
     }
 }
 
+macro_rules! match_func3 {
+    ($t:expr) => {
+        match $t {
+            "beq" => FUNC3_BEQ,
+            "bne" => FUNC3_BNE,
+            "blt" => FUNC3_BLT,
+            "bge" => FUNC3_BGE,
+            "bltu" => FUNC3_BLTU,
+            "bgeu" => FUNC3_BGEU,
+            "lb" => FUNC3_LB,
+            "lbu" => FUNC3_LBU,
+            "lh" => FUNC3_LH,
+            "lhu" => FUNC3_LHU,
+            "lw" => FUNC3_LW,
+            "sb" => FUNC3_SB,
+            "sh" => FUNC3_SH,
+            "sw" => FUNC3_SW,
+            "add" | "addi" | "sub" => FUNC3_ADD_SUB,
+            "sll" | "slli" => FUNC3_SLL,
+            "slt" | "slti" => FUNC3_SLT,
+            "sltu" => FUNC3_SLTU,
+            "xor" | "xori" => FUNC3_XOR,
+            "sra" | "srai" | "srl" | "srli" => FUNC3_SR,
+            "or" | "ori" => FUNC3_OR,
+            "and" | "andi" => FUNC3_AND,
+            _ => unreachable!(),
+        }
+    };
+}
+
+macro_rules! match_func7 {
+    ($t:expr) => {
+        match $t {
+            "add" | "addi" => FUNC7_ADD,
+            "sub" => FUNC7_SUB,
+            "sra" | "srai" => FUNC7_SRA,
+            "srl" | "srli" => FUNC7_SRL,
+            _ => unreachable!(),
+        }
+    };
+}
+
 pub fn assemble_ir(
     ir_string: &str,
     labels: &mut HashMap<String, u32>,
 ) -> Result<u32, AssemblerError> {
     let mut ir: u32 = 0;
 
+    info!("'{}'", ir_string);
+
     let tokens: Vec<String> = tokenize!(ir_string);
+
+    info!(" -> {:?}", tokens);
+
     if tokens.is_empty() {
         return Err(AssemblerError::TooFewTokensError);
     } else if tokens.len() > 4 {
@@ -116,32 +166,7 @@ pub fn assemble_ir(
         }
         ir |= encode_rs1!(rs1.unwrap());
 
-        let func3 = match op {
-            "beq" => FUNC3_BEQ,
-            "bne" => FUNC3_BNE,
-            "blt" => FUNC3_BLT,
-            "bge" => FUNC3_BGE,
-            "bltu" => FUNC3_BLTU,
-            "bgeu" => FUNC3_BGEU,
-            "lb" => FUNC3_LB,
-            "lbu" => FUNC3_LBU,
-            "lh" => FUNC3_LH,
-            "lhu" => FUNC3_LHU,
-            "lw" => FUNC3_LW,
-            "sb" => FUNC3_SB,
-            "sh" => FUNC3_SH,
-            "sw" => FUNC3_SW,
-            "add" | "addi" | "sub" => FUNC3_ADD_SUB,
-            "sll" | "slli" => FUNC3_SLL,
-            "slt" | "slti" => FUNC3_SLT,
-            "sltu" => FUNC3_SLTU,
-            "xor" | "xori" => FUNC3_XOR,
-            "sra" | "srai" | "srl" | "srli" => FUNC3_SR,
-            "or" | "ori" => FUNC3_OR,
-            "and" | "andi" => FUNC3_AND,
-            _ => unreachable!(),
-        };
-        ir |= encode_func3!(func3);
+        ir |= encode_func3!(match_func3!(op));
     }
 
     // Use the second register operand field.
@@ -155,14 +180,7 @@ pub fn assemble_ir(
 
     // Use the func7 field.
     if let InstructionFormat::Rtype = format {
-        let func7 = match op {
-            "add" | "addi" => FUNC7_ADD,
-            "sub" => FUNC7_SUB,
-            "sra" | "srai" => FUNC7_SRA,
-            "srl" | "srli" => FUNC7_SRL,
-            _ => unreachable!(),
-        };
-        ir |= encode_func7!(func7);
+        ir |= encode_func7!(match_func7!(op));
     }
 
     match format {
@@ -212,9 +230,10 @@ pub fn assemble_ir(
             let imm = imm.unwrap();
             ir |= encode_s_imm!(imm);
         }
-        _ => unreachable!(),
+        InstructionFormat::Rtype => (),
     }
 
+    info!(" -> {:08x}\n", ir);
     Ok(ir)
 }
 
@@ -237,13 +256,14 @@ where
             break;
         }
 
-        let ir = assemble_ir(&buf, &mut labels);
+        let ir = assemble_ir(buf.trim_end(), &mut labels);
 
         if let Err(why) = ir {
             return Err(why);
         }
 
         prog.push(ir.unwrap());
+        buf.clear();
     }
 
     Ok(prog)
