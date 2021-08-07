@@ -1,8 +1,9 @@
 use crate::{
-    constants::*, encode_b_imm, encode_func3, encode_func7, encode_i_imm, encode_j_imm, encode_rd,
-    encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, parse_int, AssemblerError,
+    constants::*, encode_b_imm, encode_func3, encode_func7, encode_i_imm, encode_j_imm,
+    encode_opcode, encode_rd, encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, parse_int,
+    AssemblerError,
 };
-use std::{collections::HashMap, io::prelude::*};
+use std::{collections::HashMap, io, io::prelude::*};
 
 enum InstructionFormat {
     Itype,
@@ -57,7 +58,10 @@ fn match_register(reg: &str) -> Result<u8, AssemblerError> {
     }
 }
 
-pub fn assemble_ir(ir_string: &str, labels: &HashMap<String, u32>) -> Result<u32, AssemblerError> {
+pub fn assemble_ir(
+    ir_string: &str,
+    labels: &mut HashMap<String, u32>,
+) -> Result<u32, AssemblerError> {
     let mut ir: u32 = 0;
 
     let tokens: Vec<String> = tokenize!(ir_string);
@@ -73,7 +77,7 @@ pub fn assemble_ir(ir_string: &str, labels: &HashMap<String, u32>) -> Result<u32
         return Err(why);
     }
     let opcode = opcode.unwrap();
-    ir |= (opcode & 0b1111111) as u32;
+    ir |= encode_opcode!(opcode);
 
     // Use the opcode to identify the instruction format.
     let format = match opcode {
@@ -214,11 +218,35 @@ pub fn assemble_ir(ir_string: &str, labels: &HashMap<String, u32>) -> Result<u32
     Ok(ir)
 }
 
-pub fn assemble_stream<R>(reader: R) -> Vec<u32>
+pub fn assemble_buf<R>(reader: &mut R) -> Result<Vec<u32>, AssemblerError>
 where
-    R: Read,
+    R: BufRead,
 {
-    vec![]
+    let mut prog = Vec::new();
+    let mut buf = String::new();
+    let mut labels = HashMap::new();
+
+    loop {
+        let bytes_rd = reader.read_line(&mut buf);
+
+        if bytes_rd.is_err() {
+            return Err(AssemblerError::IOError);
+        }
+
+        if bytes_rd.unwrap() == 0 {
+            break;
+        }
+
+        let ir = assemble_ir(&buf, &mut labels);
+
+        if let Err(why) = ir {
+            return Err(why);
+        }
+
+        prog.push(ir.unwrap());
+    }
+
+    Ok(prog)
 }
 
 #[cfg(test)]

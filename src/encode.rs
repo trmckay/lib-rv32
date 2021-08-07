@@ -1,4 +1,11 @@
 #[macro_export]
+macro_rules! encode_opcode {
+    ($n:expr) => {
+        (($n as u32) & 0b0111_1111)
+    };
+}
+
+#[macro_export]
 macro_rules! encode_rd {
     ($n:expr) => {
         (($n as u32) << 7)
@@ -33,9 +40,6 @@ macro_rules! encode_func7 {
     };
 }
 
-/// Take a `u32` and encode it as an I-type immediate. Evaluates to a
-/// `Result<u32, AssemblerError>` where the `u32` is a 32-bit
-/// bitmask of the immediate.
 #[macro_export]
 macro_rules! encode_i_imm {
     ($n:expr) => {{
@@ -80,6 +84,9 @@ macro_rules! encode_s_imm {
 #[macro_export]
 macro_rules! encode_b_imm {
     ($n:expr) => {
-        $n as u32
+        (((($n as u32) & 0b10000000_00000000_00000000_00000000) << (31 - 31))
+            | ((($n as u32) & 0b00000000_00000000_00000111_11100000) << (25 - 5))
+            | ((($n as u32) & 0b00000000_00000000_00000000_00011110) << (8 - 1))
+            | ((($n as u32) & 0b00000000_00000000_00001000_00000000) >> (11 - 7)))
     };
 }

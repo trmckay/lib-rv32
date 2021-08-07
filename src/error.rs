@@ -26,4 +26,5 @@ pub enum AssemblerError {
     TooFewTokensError,
     ImmediateTooLargeError,
     InvalidImmediateError,
+    IOError,
 }

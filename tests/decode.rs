@@ -1,8 +1,14 @@
 use lib_rv32::{constants::*, *};
 mod instructions;
 
+macro_rules! assert_eq {
+    ($a:expr, $b:expr) => {
+        std::assert_eq!($a, $b, "\n{:032b}\n{:032b}", $a, $b)
+    };
+}
+
 #[test]
-fn test_opcode() {
+fn test_decode_opcode() {
     assert_eq!(OPCODE_LUI, decode_opcode!(instructions::LUI_X5_4));
     assert_eq!(OPCODE_AUIPC, decode_opcode!(instructions::AUIPC_X5_4));
     assert_eq!(OPCODE_JAL, decode_opcode!(instructions::JAL_X0_16));
@@ -13,7 +19,7 @@ fn test_opcode() {
 }
 
 #[test]
-fn test_func3() {
+fn test_decode_func3() {
     assert_eq!(FUNC3_BEQ, decode_func3!(instructions::BEQ_X5_X5_12));
     assert_eq!(FUNC3_BNE, decode_func3!(instructions::BNE_X5_X5_76));
     assert_eq!(FUNC3_BLT, decode_func3!(instructions::BLT_X5_X5_72));
@@ -37,7 +43,7 @@ fn test_func3() {
 }
 
 #[test]
-fn test_i_imm() {
+fn test_decode_i_imm() {
     assert_eq!(17, decode_i_imm!(instructions::ADDI_X0_X0_17));
     assert_eq!(82, decode_i_imm!(instructions::XORI_X5_X6_82));
     assert_eq!(0, decode_i_imm!(instructions::ADDI_X5_X6_0));
@@ -51,16 +57,16 @@ fn test_i_imm() {
 }
 
 #[test]
-fn test_j_imm() {
+fn test_decode_j_imm() {
     assert_eq!(-8, decode_j_imm!(instructions::JAL_X0_NEG_8) as i32);
     assert_eq!(16, decode_j_imm!(instructions::JAL_X0_16));
 }
 
 #[test]
-fn test_b_imm() {}
+fn test_decode_b_imm() {}
 
 #[test]
-fn test_s_imm() {
+fn test_decode_s_imm() {
     assert_eq!(0, decode_s_imm!(instructions::SW_X5_0_X5));
     assert_eq!(16, decode_s_imm!(instructions::SW_X5_16_X5));
     assert_eq!(-40, decode_s_imm!(instructions::SW_X5_NEG_40_X5) as i32);
@@ -69,7 +75,7 @@ fn test_s_imm() {
 }
 
 #[test]
-fn test_rs1() {
+fn test_decode_rs1() {
     for i in 0..32 {
         assert_eq!(
             i as u8,
@@ -79,7 +85,7 @@ fn test_rs1() {
 }
 
 #[test]
-fn test_rs2() {
+fn test_decode_rs2() {
     for i in 0..32 {
         assert_eq!(
             i as u8,
@@ -89,7 +95,7 @@ fn test_rs2() {
 }
 
 #[test]
-fn test_rd() {
+fn test_decode_rd() {
     for i in 0..32 {
         assert_eq!(
             i as u8,
