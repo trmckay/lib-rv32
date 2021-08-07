@@ -2,8 +2,8 @@ use std::fs;
 use std::path::Path;
 
 use crate::constants::*;
+use crate::parse_int;
 use crate::traits::*;
-use crate::util::parse_int;
 
 /// Used to contain a set of assertions about the state of an MCU.
 pub struct Assertions {
@@ -43,7 +43,7 @@ impl Assertions {
         let mut register_assertions: Vec<(u8, u32, bool)> = Vec::new();
         for (i, name) in REG_NAMES.iter().enumerate() {
             if let Some(s) = test_params["registers"][*name].as_str() {
-                let d = parse_int(s).unwrap();
+                let d = parse_int!(u32, s).unwrap();
                 register_assertions.push((i as u8, d as u32, true));
             }
         }
@@ -52,8 +52,8 @@ impl Assertions {
         let kvs = test_params["memory"].as_object();
         if kvs.is_some() {
             for (k, v) in kvs.unwrap() {
-                let addr = parse_int(k).unwrap();
-                let data = parse_int(v.as_str().unwrap()).unwrap();
+                let addr = parse_int!(u32, k).unwrap();
+                let data = parse_int!(u32, v.as_str().unwrap()).unwrap();
                 memory_assertions.push((addr, data, true));
             }
         }

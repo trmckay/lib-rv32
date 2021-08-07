@@ -30,5 +30,5 @@ pub mod assembler;
 pub mod traits;
 
 pub use assertions::Assertions;
-pub use error::RiscvError;
+pub use error::{AssemblerError, RiscvError};
 pub use exec::exec_one;

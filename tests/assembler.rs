@@ -1,6 +1,5 @@
 mod instructions;
 use lib_rv32::assembler::*;
-use lib_rv32::*;
 use std::collections::HashMap;
 
 #[test]

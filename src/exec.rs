@@ -382,13 +382,13 @@ where
                     ir_name = "xor";
                     |l: u32, r: u32| l ^ r
                 }
-                FUNC3_SRA_SRL => match decode_func7!(ir) {
+                FUNC3_SR => match decode_func7!(ir) {
                     FUNC7_SRA => {
                         ir_name = "sra";
                         |l: u32, r: u32| ((l as i32) >> r) as u32 // sign-extension
                     }
-                    FUNC7_SLL => {
-                        ir_name = "sll";
+                    FUNC7_SRL => {
+                        ir_name = "srl";
                         |l: u32, r: u32| l >> r
                     }
                     _ => return Err(RiscvError::InvalidFunc3Error(ir, decode_func3!(ir))),

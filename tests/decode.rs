@@ -31,7 +31,7 @@ fn func3() {
     assert_eq!(FUNC3_SLT, decode_func3!(instructions::SLTI_X5_X5_1));
     assert_eq!(FUNC3_SLTU, decode_func3!(instructions::SLTU_X5_X5_X5));
     assert_eq!(FUNC3_XOR, decode_func3!(instructions::XORI_X5_X5_1));
-    assert_eq!(FUNC3_SRA_SRL, decode_func3!(instructions::SRAI_X5_X5_1));
+    assert_eq!(FUNC3_SR, decode_func3!(instructions::SRAI_X5_X5_1));
     assert_eq!(FUNC3_OR, decode_func3!(instructions::ORI_X5_X5_1));
     assert_eq!(FUNC3_AND, decode_func3!(instructions::ANDI_X5_X5_1));
 }
