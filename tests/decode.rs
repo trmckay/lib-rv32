@@ -2,7 +2,7 @@ use lib_rv32::{constants::*, *};
 mod instructions;
 
 #[test]
-fn opcode() {
+fn test_opcode() {
     assert_eq!(OPCODE_LUI, decode_opcode!(instructions::LUI_X5_4));
     assert_eq!(OPCODE_AUIPC, decode_opcode!(instructions::AUIPC_X5_4));
     assert_eq!(OPCODE_JAL, decode_opcode!(instructions::JAL_X0_16));
@@ -13,7 +13,7 @@ fn opcode() {
 }
 
 #[test]
-fn func3() {
+fn test_func3() {
     assert_eq!(FUNC3_BEQ, decode_func3!(instructions::BEQ_X5_X5_12));
     assert_eq!(FUNC3_BNE, decode_func3!(instructions::BNE_X5_X5_76));
     assert_eq!(FUNC3_BLT, decode_func3!(instructions::BLT_X5_X5_72));
@@ -37,7 +37,7 @@ fn func3() {
 }
 
 #[test]
-fn i_imm() {
+fn test_i_imm() {
     assert_eq!(17, decode_i_imm!(instructions::ADDI_X0_X0_17));
     assert_eq!(82, decode_i_imm!(instructions::XORI_X5_X6_82));
     assert_eq!(0, decode_i_imm!(instructions::ADDI_X5_X6_0));
@@ -51,16 +51,16 @@ fn i_imm() {
 }
 
 #[test]
-fn j_imm() {
+fn test_j_imm() {
     assert_eq!(-8, decode_j_imm!(instructions::JAL_X0_NEG_8) as i32);
     assert_eq!(16, decode_j_imm!(instructions::JAL_X0_16));
 }
 
 #[test]
-fn b_imm() {}
+fn test_b_imm() {}
 
 #[test]
-fn s_imm() {
+fn test_s_imm() {
     assert_eq!(0, decode_s_imm!(instructions::SW_X5_0_X5));
     assert_eq!(16, decode_s_imm!(instructions::SW_X5_16_X5));
     assert_eq!(-40, decode_s_imm!(instructions::SW_X5_NEG_40_X5) as i32);
@@ -69,7 +69,7 @@ fn s_imm() {
 }
 
 #[test]
-fn rs1() {
+fn test_rs1() {
     for i in 0..32 {
         assert_eq!(
             i as u8,
@@ -79,7 +79,7 @@ fn rs1() {
 }
 
 #[test]
-fn rs2() {
+fn test_rs2() {
     for i in 0..32 {
         assert_eq!(
             i as u8,
@@ -89,7 +89,7 @@ fn rs2() {
 }
 
 #[test]
-fn rd() {
+fn test_rd() {
     for i in 0..32 {
         assert_eq!(
             i as u8,

@@ -48,14 +48,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn zero() {
+    fn test_zero() {
         let mut rf = RegisterFile::new();
         rf.write(0, 17).unwrap();
         assert_eq!(0, rf.read(0).unwrap());
     }
 
     #[test]
-    fn read_write() {
+    fn test_read_write() {
         let mut rf = RegisterFile::new();
         for i in 0..128 {
             let d = i << 16;
@@ -67,7 +67,7 @@ mod tests {
     }
 
     #[test]
-    fn out_of_range() {
+    fn test_out_of_range() {
         assert_eq!(
             Err(RiscvError::RegisterOutOfRangeError(32)),
             RegisterFile::new().read(32)

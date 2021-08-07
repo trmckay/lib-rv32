@@ -94,7 +94,7 @@ macro_rules! sized_bit_extend {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn bit_slice() {
+    fn test_bit_slice() {
         let x = 0b1011;
 
         assert_eq!(0b1, bit_slice!(x, 3));
@@ -110,12 +110,12 @@ mod tests {
     }
 
     #[test]
-    fn bit_concat() {
+    fn test_bit_concat() {
         assert_eq!(0b1101, bit_concat!((0b11, 2), (0b01, 2)));
     }
 
     #[test]
-    fn bit_extend() {
+    fn test_bit_extend() {
         assert_eq!(0b1111, bit_extend!(1, 4));
         assert_eq!(0b0, bit_extend!(0, 32));
     }

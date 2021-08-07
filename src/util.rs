@@ -18,6 +18,12 @@ mod tests {
     #[test]
     fn test_parse_int() {
         assert_eq!(17, parse_int!(u32, "17").unwrap());
+        assert_eq!(17, parse_int!(u32, "017").unwrap());
         assert_eq!(17, parse_int!(i32, "17").unwrap());
+
+        assert_eq!(-21, parse_int!(i32, "-21").unwrap());
+
+        assert_eq!(0x16, parse_int!(u32, "0x16").unwrap());
+        assert_eq!(0x16, parse_int!(u32, "0x0016").unwrap());
     }
 }

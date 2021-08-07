@@ -3,7 +3,7 @@ use lib_rv32::assembler::*;
 use std::collections::HashMap;
 
 #[test]
-fn addi() {
+fn test_addi() {
     let empty_hash: HashMap<String, u32> = HashMap::new();
     assert_eq!(
         instructions::ADDI_X5_X6_0,
