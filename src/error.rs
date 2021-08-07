@@ -15,3 +15,15 @@ pub enum RiscvError {
     MemoryOutOfBoundsError(u32),
     MemoryAlignmentError(u32),
 }
+
+#[derive(Debug, PartialEq)]
+pub enum AssemblerError {
+    InvalidOperationError,
+    NoSuchLabelError,
+    NoSuchRegisterError,
+    WrongOperandTypeError,
+    TooManyTokensError,
+    TooFewTokensError,
+    ImmediateTooLargeError,
+    InvalidImmediateError,
+}

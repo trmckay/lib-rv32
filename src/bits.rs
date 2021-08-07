@@ -2,7 +2,7 @@
 #[macro_export]
 macro_rules! bit {
     ($n:expr) => {
-        (0b1 << $n)
+        ((0b1 as u32) << $n)
     };
 }
 

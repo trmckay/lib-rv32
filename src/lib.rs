@@ -15,8 +15,15 @@ mod util;
 pub mod constants;
 /// Decoding macros.
 pub mod decode;
+
+/// Encoding macros.
+pub mod encode;
+
 /// Reference implementation of an MCU.
 pub mod mcu;
+
+///
+pub mod assembler;
 
 /// Traits to be implementation by other implementations of
 /// an MCU.
