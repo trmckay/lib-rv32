@@ -13,51 +13,18 @@ enum InstructionFormat {
     Btype,
 }
 
-/// Convert an instruction to it's tokens.
-/// Immediates always come last.
-/// Undefined behavior for malformed instructions.
-fn tokenize(s: &str) -> Vec<String> {
-    let mut in_token = false;
-    let mut in_parens = false;
-    let mut token_start = 0;
-    let mut num_tokens = 0;
-
-    let mut tokens = vec!["".to_string(); 4];
-
-    for (i, c) in s.chars().enumerate() {
-        match c {
-            ' ' | ',' => {
-                if in_token {
-                    in_token = false;
-                    // Shift the token over one if its surround by parentheses (for offsets).
-                    if !in_parens {
-                        tokens[num_tokens] = s[token_start..i].to_string();
-                        num_tokens += 1;
-                    }
-                }
-            }
-            '(' => {
-                in_token = false;
-                in_parens = true;
-                tokens[num_tokens + 1] = s[token_start..i].to_string();
-            }
-            ')' => {
-                tokens[num_tokens] = s[token_start..i].to_string();
-            }
-            _ => {
-                if !in_token {
-                    in_token = true;
-                    token_start = i;
-                }
-            }
-        }
-    }
-
-    if !in_parens {
-        tokens[num_tokens] = s[token_start..].to_string();
-    }
-
-    tokens
+/// Convert an instruction to it's tokens, stripping out whitespace,
+/// parenthesis, and commas.
+macro_rules! tokenize {
+    ($s:expr) => {
+        $s.replace(",", " ")
+            .replace("(", " ")
+            .replace(")", " ")
+            .to_ascii_lowercase()
+            .split_whitespace()
+            .map(|s| s.to_owned())
+            .collect();
+    };
 }
 
 fn match_opcode(op: &str) -> Result<u8, AssemblerError> {
@@ -93,7 +60,7 @@ fn match_register(reg: &str) -> Result<u8, AssemblerError> {
 pub fn assemble_ir(ir_string: &str, labels: &HashMap<String, u32>) -> Result<u32, AssemblerError> {
     let mut ir: u32 = 0;
 
-    let tokens = tokenize(ir_string);
+    let tokens: Vec<String> = tokenize!(ir_string);
     if tokens.is_empty() {
         return Err(AssemblerError::TooFewTokensError);
     } else if tokens.len() > 4 {
@@ -134,7 +101,12 @@ pub fn assemble_ir(ir_string: &str, labels: &HashMap<String, u32>) -> Result<u32
     | InstructionFormat::Btype
     | InstructionFormat::Stype = format
     {
-        let rs1 = match_register(&tokens[2]);
+        let rs1 = match_register(
+            &tokens[match opcode {
+                OPCODE_LOAD => 3,
+                _ => 2,
+            }],
+        );
         if let Err(why) = rs1 {
             return Err(why);
         }
@@ -151,6 +123,7 @@ pub fn assemble_ir(ir_string: &str, labels: &HashMap<String, u32>) -> Result<u32
             "lbu" => FUNC3_LBU,
             "lh" => FUNC3_LH,
             "lhu" => FUNC3_LHU,
+            "lw" => FUNC3_LW,
             "sb" => FUNC3_SB,
             "sh" => FUNC3_SH,
             "sw" => FUNC3_SW,
@@ -190,7 +163,13 @@ pub fn assemble_ir(ir_string: &str, labels: &HashMap<String, u32>) -> Result<u32
 
     match format {
         InstructionFormat::Itype => {
-            let imm = parse_int!(i32, &tokens[3]);
+            let imm = parse_int!(
+                i32,
+                tokens[match opcode {
+                    OPCODE_LOAD => 2,
+                    _ => 3,
+                }]
+            );
             if imm.is_err() {
                 return Err(AssemblerError::InvalidImmediateError);
             }
@@ -222,7 +201,7 @@ pub fn assemble_ir(ir_string: &str, labels: &HashMap<String, u32>) -> Result<u32
             ir |= encode_b_imm!(imm);
         }
         InstructionFormat::Stype => {
-            let imm = parse_int!(i32, &tokens[3]);
+            let imm = parse_int!(i32, &tokens[2]);
             if imm.is_err() {
                 return Err(AssemblerError::InvalidImmediateError);
             }
@@ -244,10 +223,10 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     #[test]
     fn test_tokenize() {
+        let tokens: Vec<String> = tokenize!("addi t0, t1, 17");
         assert_eq!(
             vec![
                 "addi".to_string(),
@@ -255,20 +234,59 @@ mod tests {
                 "t1".to_string(),
                 "17".to_string()
             ],
-            tokenize("addi t0, t1, 17")
+            tokens
         );
     }
 
     #[test]
     fn test_tokenize_with_offsets() {
+        let tokens: Vec<String> = tokenize!("lw t0, 17(s0)");
         assert_eq!(
             vec![
                 "lw".to_string(),
                 "t0".to_string(),
+                "17".to_string(),
                 "s0".to_string(),
-                "17".to_string()
             ],
-            tokenize("lw t0, 17(s0)")
+            tokens
+        );
+        let tokens: Vec<String> = tokenize!("lw x5, 0(x5)");
+        assert_eq!(
+            vec![
+                "lw".to_string(),
+                "x5".to_string(),
+                "0".to_string(),
+                "x5".to_string(),
+            ],
+            tokens
+        );
+    }
+
+    #[test]
+    fn test_tokenize_many_commas() {
+        let tokens: Vec<String> = tokenize!("lw,,, t0,,,,, 17,,,(s0),,,,,,");
+        assert_eq!(
+            vec![
+                "lw".to_string(),
+                "t0".to_string(),
+                "17".to_string(),
+                "s0".to_string(),
+            ],
+            tokens
+        );
+    }
+
+    #[test]
+    fn test_tokenize_many_spaces() {
+        let tokens: Vec<String> = tokenize!("lw    t0      17   (s0)      ");
+        assert_eq!(
+            vec![
+                "lw".to_string(),
+                "t0".to_string(),
+                "17".to_string(),
+                "s0".to_string(),
+            ],
+            tokens
         );
     }
 }
