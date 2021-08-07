@@ -1,9 +1,9 @@
 use std::fs;
 use std::path::Path;
 
+use crate::constants::*;
 use crate::traits::*;
 use crate::util::parse_int;
-use crate::REG_NAMES;
 
 /// Used to contain a set of assertions about the state of an MCU.
 pub struct Assertions {

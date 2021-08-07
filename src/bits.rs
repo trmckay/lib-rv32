@@ -1,3 +1,11 @@
+/// Returns a bitmask for the n'th bit.
+#[macro_export]
+macro_rules! bit {
+    ($n:expr) => {
+        (0b1 << $n)
+    };
+}
+
 /// Macro to help with bit level access to integers. Example
 /// attempts to mimic Verilog syntax.
 ///

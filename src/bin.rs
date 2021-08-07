@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 use log::info;
 use log::{Level, LevelFilter, Metadata, Record};
 
-use lib_rv32::{exec_one, mcu::*, Assertions, REG_NAMES};
+use lib_rv32::{constants::*, exec_one, mcu::*, Assertions};
 
 const DEFAULT_MEM_SIZE: usize = 1024 * 64;
 

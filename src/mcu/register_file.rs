@@ -1,5 +1,5 @@
 pub use crate::traits::RegisterFile as RegisterFileTrait;
-use crate::{RiscvError, REG_NAMES};
+use crate::{constants::*, RiscvError};
 use log::info;
 
 /// Heap allocated implementation of a register file.
