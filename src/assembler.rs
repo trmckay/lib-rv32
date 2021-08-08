@@ -122,17 +122,13 @@ pub fn assemble_ir(
     ir_string: &str,
     labels: &mut HashMap<String, u32>,
     pc: u32,
-) -> Result<u32, AssemblerError> {
+) -> Result<Option<u32>, AssemblerError> {
     let mut ir: u32 = 0;
-
-    info!("'{}'", ir_string);
 
     let mut tokens: Vec<String> = tokenize!(ir_string);
 
-    info!(" -> {:?}", tokens);
-
     if tokens.is_empty() {
-        return Err(AssemblerError::TooFewTokensError);
+        return Ok(None);
     } else if tokens.len() > 5 {
         return Err(AssemblerError::TooManyTokensError);
     }
@@ -142,6 +138,12 @@ pub fn assemble_ir(
         labels.insert(tokens[0].strip_suffix(':').unwrap().to_owned(), pc);
         tokens.remove(0);
     }
+
+    if tokens.is_empty() {
+        return Ok(None);
+    }
+
+    info!("{:24} -> ", ir_string);
 
     let op = &tokens[0][..];
     let opcode = match_opcode(op);
@@ -222,40 +224,40 @@ pub fn assemble_ir(
                 labels,
                 pc,
             );
-            if imm.is_err() {
-                return imm;
+            if let Err(why) = imm {
+                return Err(why);
             }
             let imm = imm.unwrap();
             ir |= encode_i_imm!(imm);
         }
         InstructionFormat::Utype => {
             let imm = parse_imm(&tokens[2], labels, pc);
-            if imm.is_err() {
-                return imm;
+            if let Err(why) = imm {
+                return Err(why);
             }
             let imm = imm.unwrap();
             ir |= encode_u_imm!(imm);
         }
         InstructionFormat::Jtype => {
             let imm = parse_imm(&tokens[2], labels, pc);
-            if imm.is_err() {
-                return imm;
+            if let Err(why) = imm {
+                return Err(why);
             }
             let imm = imm.unwrap();
             ir |= encode_j_imm!(imm);
         }
         InstructionFormat::Btype => {
             let imm = parse_imm(&tokens[3], labels, pc);
-            if imm.is_err() {
-                return imm;
+            if let Err(why) = imm {
+                return Err(why);
             }
             let imm = imm.unwrap();
             ir |= encode_b_imm!(imm);
         }
         InstructionFormat::Stype => {
             let imm = parse_imm(&tokens[2], labels, pc);
-            if imm.is_err() {
-                return imm;
+            if let Err(why) = imm {
+                return Err(why);
             }
             let imm = imm.unwrap();
             ir |= encode_s_imm!(imm);
@@ -263,8 +265,8 @@ pub fn assemble_ir(
         InstructionFormat::Rtype => (),
     }
 
-    info!(" -> {:08x}\n", ir);
-    Ok(ir)
+    info!("{:08x}\n", ir);
+    Ok(Some(ir))
 }
 
 pub fn assemble_buf<R>(reader: &mut R) -> Result<Vec<u32>, AssemblerError>
@@ -293,7 +295,9 @@ where
             return Err(why);
         }
 
-        prog.push(ir.unwrap());
+        if let Some(i) = ir.unwrap() {
+            prog.push(i);
+        }
         buf.clear();
         pc += 4;
     }
