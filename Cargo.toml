@@ -7,7 +7,7 @@ homepage = "https://github.com/trmckay/lib-rv32"
 repository = "https://github.com/trmckay/lib-rv32"
 version = "0.1.1"
 edition = "2018"
-license-file = "./LICENSE"
+license = "MIT"
 readme = "./README.md"
 include = ["/src", "/LICENSE", "/README.md"]
 
