@@ -143,7 +143,7 @@ pub fn assemble_ir(
         return Ok(None);
     }
 
-    info!("{:24} -> ", ir_string);
+    info!("{:24} -> [{:02x}] ", ir_string, pc);
 
     let op = &tokens[0][..];
     let opcode = match_opcode(op);
@@ -297,9 +297,9 @@ where
 
         if let Some(i) = ir.unwrap() {
             prog.push(i);
+            pc += 4;
         }
         buf.clear();
-        pc += 4;
     }
 
     Ok(prog)
