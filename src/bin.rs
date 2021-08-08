@@ -1,7 +1,5 @@
 use std::fs;
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::{self, BufReader};
+use std::io::BufReader;
 
 use std::path::PathBuf;
 
@@ -30,18 +28,19 @@ struct Config {
     mem_size: usize,
     stop_pc: Option<u32>,
     assertions: Option<PathBuf>,
+    output: Option<PathBuf>,
     mode: Mode,
 }
 
 impl Config {
     fn new() -> Self {
         let matches = App::new("lib-rv32")
-            .version("1.0")
+            .version("0.2.0")
             .author("Trevor McKay <tm@trmckay.com>")
             .about("Emulate RISC-V")
             .arg(
                 Arg::with_name("file")
-                    .help("File on which to act.")
+                    .help("File on which to act")
                     .required(true)
                     .index(1),
             )
@@ -50,7 +49,7 @@ impl Config {
                     .short("m")
                     .long("mem")
                     .value_name("MEM_SIZE")
-                    .help("Set the size of the MCU memory (default 64 KB).")
+                    .help("Set the size of the MCU memory (default 64 KB)")
                     .takes_value(true),
             )
             .arg(
@@ -58,15 +57,23 @@ impl Config {
                     .short("s")
                     .long("--stop")
                     .value_name("STOP_PC")
-                    .help("Set the program counter at which to stop emulation.")
+                    .help("Set the program counter at which to stop emulation")
                     .takes_value(true),
             )
             .arg(
                 Arg::with_name("assertions")
                     .short("a")
                     .long("--assertions")
-                    .value_name("ASSERTIONS")
-                    .help("A JSON formatted set of assertions.")
+                    .value_name("ASSERTIONS_FILE")
+                    .help("A JSON formatted set of assertions")
+                    .takes_value(true),
+            )
+            .arg(
+                Arg::with_name("output")
+                    .short("o")
+                    .long("--output")
+                    .value_name("OUTPUT_FILE")
+                    .help("Out-file for binary in assembler mode, or memory dump in emulator mode")
                     .takes_value(true),
             )
             .arg(
@@ -80,7 +87,7 @@ impl Config {
                 Arg::with_name("assemble")
                     .short("c")
                     .long("--assemble")
-                    .help("Launch in assembler mode.")
+                    .help("Launch in assembler mode")
                     .takes_value(false),
             )
             .arg(
@@ -88,7 +95,7 @@ impl Config {
                     .short("e")
                     .long("--emulate")
                     .default_value("e")
-                    .help("Launch in emulator mode.")
+                    .help("Launch in emulator mode")
                     .takes_value(false),
             )
             .get_matches();
@@ -104,6 +111,7 @@ impl Config {
         let verbose = !matches!(matches.occurrences_of("verbose"), 0);
         let path = PathBuf::from(matches.value_of("file").unwrap());
         let assertions = matches.value_of("assertions").map(PathBuf::from);
+        let output = matches.value_of("output").map(PathBuf::from);
 
         let mode: Mode = if matches.occurrences_of("emulate") == 1 {
             Mode::Emulator
@@ -128,6 +136,7 @@ impl Config {
             stop_pc,
             assertions,
             mode,
+            output,
         }
     }
 }

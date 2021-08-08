@@ -1,11 +1,11 @@
 use crate::{
     constants::*, encode_b_imm, encode_func3, encode_func7, encode_i_imm, encode_j_imm,
-    encode_opcode, encode_rd, encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, error, parse_int,
+    encode_opcode, encode_rd, encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, parse_int,
     AssemblerError,
 };
 use std::{collections::HashMap, io::prelude::*};
 
-use log::{error, info};
+use log::info;
 
 enum InstructionFormat {
     Itype,
@@ -61,6 +61,21 @@ fn match_register(reg: &str) -> Result<u8, AssemblerError> {
     }
 }
 
+fn parse_imm(s: &str, labels: &HashMap<String, u32>, pc: u32) -> Result<u32, AssemblerError> {
+    let num = parse_int!(i64, s);
+    match num {
+        Err(_) => {
+            let label = labels.get(s);
+            if let Some(v) = label {
+                Ok((*v).wrapping_sub(pc))
+            } else {
+                Err(AssemblerError::InvalidImmediateError)
+            }
+        }
+        Ok(d) => Ok(d as u32),
+    }
+}
+
 macro_rules! match_func3 {
     ($t:expr) => {
         match $t {
@@ -106,19 +121,26 @@ macro_rules! match_func7 {
 pub fn assemble_ir(
     ir_string: &str,
     labels: &mut HashMap<String, u32>,
+    pc: u32,
 ) -> Result<u32, AssemblerError> {
     let mut ir: u32 = 0;
 
     info!("'{}'", ir_string);
 
-    let tokens: Vec<String> = tokenize!(ir_string);
+    let mut tokens: Vec<String> = tokenize!(ir_string);
 
     info!(" -> {:?}", tokens);
 
     if tokens.is_empty() {
         return Err(AssemblerError::TooFewTokensError);
-    } else if tokens.len() > 4 {
+    } else if tokens.len() > 5 {
         return Err(AssemblerError::TooManyTokensError);
+    }
+
+    // Add and remove leading label.
+    if tokens[0].ends_with(':') {
+        labels.insert(tokens[0].strip_suffix(':').unwrap().to_owned(), pc);
+        tokens.remove(0);
     }
 
     let op = &tokens[0][..];
@@ -185,47 +207,48 @@ pub fn assemble_ir(
 
     match format {
         InstructionFormat::Itype => {
-            let imm = parse_int!(
-                i32,
-                tokens[match opcode {
+            let imm = parse_imm(
+                &tokens[match opcode {
                     OPCODE_LOAD => 2,
                     _ => 3,
-                }]
+                }],
+                labels,
+                pc,
             );
             if imm.is_err() {
-                return Err(AssemblerError::InvalidImmediateError);
+                return imm;
             }
             let imm = imm.unwrap();
             ir |= encode_i_imm!(imm);
         }
         InstructionFormat::Utype => {
-            let imm = parse_int!(u32, &tokens[2]);
+            let imm = parse_imm(&tokens[2], labels, pc);
             if imm.is_err() {
-                return Err(AssemblerError::InvalidImmediateError);
+                return imm;
             }
             let imm = imm.unwrap();
             ir |= encode_u_imm!(imm);
         }
         InstructionFormat::Jtype => {
-            let imm = parse_int!(u32, &tokens[2]);
+            let imm = parse_imm(&tokens[2], labels, pc);
             if imm.is_err() {
-                return Err(AssemblerError::InvalidImmediateError);
+                return imm;
             }
             let imm = imm.unwrap();
             ir |= encode_j_imm!(imm);
         }
         InstructionFormat::Btype => {
-            let imm = parse_int!(i32, &tokens[3]);
+            let imm = parse_imm(&tokens[3], labels, pc);
             if imm.is_err() {
-                return Err(AssemblerError::InvalidImmediateError);
+                return imm;
             }
             let imm = imm.unwrap();
             ir |= encode_b_imm!(imm);
         }
         InstructionFormat::Stype => {
-            let imm = parse_int!(i32, &tokens[2]);
+            let imm = parse_imm(&tokens[2], labels, pc);
             if imm.is_err() {
-                return Err(AssemblerError::InvalidImmediateError);
+                return imm;
             }
             let imm = imm.unwrap();
             ir |= encode_s_imm!(imm);
@@ -244,6 +267,7 @@ where
     let mut prog = Vec::new();
     let mut buf = String::new();
     let mut labels = HashMap::new();
+    let mut pc: u32 = 0;
 
     loop {
         let bytes_rd = reader.read_line(&mut buf);
@@ -256,7 +280,7 @@ where
             break;
         }
 
-        let ir = assemble_ir(buf.trim_end(), &mut labels);
+        let ir = assemble_ir(buf.trim_end(), &mut labels, pc);
 
         if let Err(why) = ir {
             return Err(why);
@@ -264,6 +288,7 @@ where
 
         prog.push(ir.unwrap());
         buf.clear();
+        pc += 4;
     }
 
     Ok(prog)
@@ -271,6 +296,8 @@ where
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use std::collections::HashMap;
 
     #[test]
     fn test_tokenize() {
@@ -336,5 +363,31 @@ mod tests {
             ],
             tokens
         );
+    }
+
+    #[test]
+    fn test_tokenize_label() {
+        let tokens: Vec<String> = tokenize!("label: addi t0, t1, 12");
+        assert_eq!(
+            vec![
+                "label:".to_string(),
+                "addi".to_string(),
+                "t0".to_string(),
+                "t1".to_string(),
+                "12".to_string(),
+            ],
+            tokens
+        );
+    }
+
+    #[test]
+    fn test_parse_imm() {
+        let mut labels: HashMap<String, u32> = HashMap::new();
+        labels.insert("loop".to_string(), 0);
+        let pc = 4;
+
+        assert_eq!(-4, parse_imm("loop", &labels, pc).unwrap() as i32);
+        assert_eq!(-24, parse_imm("-24", &labels, pc).unwrap() as i32);
+        assert_eq!(16, parse_imm("16", &labels, pc).unwrap());
     }
 }
