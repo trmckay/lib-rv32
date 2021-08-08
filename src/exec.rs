@@ -126,7 +126,7 @@ where
             if let Err(why) = rf.write(rd, *pc + 4) {
                 return Err(why);
             }
-            *pc = pc.overflowing_add(imm).0;
+            *pc = pc.wrapping_add(imm);
             info!("pc <- 0x{:x}; ", pc);
 
             info!("\n");
@@ -154,7 +154,7 @@ where
                 return Err(why);
             }
 
-            *pc = rs1_data.overflowing_add(imm).0;
+            *pc = rs1_data.wrapping_add(imm);
             info!("pc <- 0x{:x}; ", pc);
 
             info!("\n");
@@ -209,7 +209,7 @@ where
             );
 
             if taken {
-                *pc = pc.overflowing_add(imm).0;
+                *pc = pc.wrapping_add(imm);
                 info!("pc <- 0x{:x}; ", pc);
             } else {
                 *pc += 4;
@@ -226,7 +226,7 @@ where
                 Err(why) => return Err(why),
             };
             let imm = i_imm!(ir);
-            let addr = base.overflowing_add(imm).0;
+            let addr = base.wrapping_add(imm);
             let rd = rd!(ir);
             let func3 = func3!(ir);
 
@@ -304,8 +304,7 @@ where
                 Ok(d) => d,
                 Err(why) => return Err(why),
             }
-            .overflowing_add(imm)
-            .0;
+            .wrapping_add(imm);
             let data = match rf.read(rs2) {
                 Ok(d) => d,
                 Err(why) => return Err(why),
@@ -347,17 +346,17 @@ where
                     OPCODE_ARITHMETIC => match func3!(ir) {
                         FUNC7_SUB => {
                             ir_name = "sub";
-                            |l: u32, r: u32| l.overflowing_sub(r).0
+                            |l: u32, r: u32| l.wrapping_add(r)
                         }
                         FUNC7_ADD => {
                             ir_name = "add";
-                            |l: u32, r: u32| l.overflowing_add(r).0
+                            |l: u32, r: u32| l.wrapping_add(r)
                         }
                         _ => return Err(RiscvError::InvalidFunc7Error(ir, func7!(ir))),
                     },
                     OPCODE_ARITHMETIC_IMM => {
                         ir_name = "add";
-                        |l: u32, r: u32| l.overflowing_add(r).0
+                        |l: u32, r: u32| l.wrapping_add(r)
                     }
                     _ => return Err(RiscvError::InvalidOpcodeError(ir, opcode!(ir))),
                 },
