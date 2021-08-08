@@ -56,3 +56,4 @@ declare_ir!(SW_X5_NEG_40_X5, 0xfc52ac23);
 declare_ir!(SW_A0_NEG_36_SP, 0xfca42e23);
 declare_ir!(SW_A0_NEG_20_S0, 0xfea42623);
 declare_ir!(JAL_X0_NEG_4, 0xffdff06f);
+declare_ir!(BNE_X0_X5_NEG_4, 0xfe501ee3);

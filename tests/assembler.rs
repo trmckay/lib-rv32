@@ -102,7 +102,7 @@ fn test_assemble_b_type() {
     assert_eq!(expect, actual);
 
     let expect = instructions::BNE_X5_X5_76;
-    let actual = assemble_ir("bne x5, x5, 76", &mut empty_hash, 0).unwrap();
+    let actual = assemble_ir("bne t0, t0, 76", &mut empty_hash, 0).unwrap();
     assert_eq!(expect, actual);
 }
 
@@ -119,7 +119,10 @@ fn test_assemble_with_label() {
 
     let expect = instructions::JAL_X0_NEG_4;
     let actual = assemble_ir("jal x0, loop", &mut labels, 4).unwrap();
+    assert_eq!(expect, actual);
 
+    let expect = instructions::BNE_X0_X5_NEG_4;
+    let actual = assemble_ir("bne x0, t0, loop", &mut labels, 4).unwrap();
     assert_eq!(expect, actual);
 }
 
@@ -154,8 +157,7 @@ fn test_encode_rs1() {
 
 #[test]
 fn test_encode_rs2() {
-    test_field!(encode_rs2!(5), instructions::BEQ_X5_X5_12);
-    test_field!(encode_rs2!(5), instructions::BNE_X5_X5_76);
+    test_field!(encode_rs2!(5), instructions::BNE_X0_X5_NEG_4);
 }
 
 #[test]

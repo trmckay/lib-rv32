@@ -180,6 +180,7 @@ pub fn assemble_ir(
         let rs1 = match_register(
             &tokens[match opcode {
                 OPCODE_LOAD => 3,
+                OPCODE_BRANCH => 1,
                 _ => 2,
             }],
         );
@@ -193,7 +194,13 @@ pub fn assemble_ir(
 
     // Use the second register operand field.
     if let InstructionFormat::Rtype | InstructionFormat::Stype | InstructionFormat::Btype = format {
-        let rs2 = match_register(&tokens[2]);
+        let rs2 = match_register(
+            &tokens[match opcode {
+                OPCODE_STORE => 1,
+                OPCODE_BRANCH => 2,
+                _ => 3,
+            }],
+        );
         if let Err(why) = rs2 {
             return Err(why);
         }

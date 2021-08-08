@@ -1,4 +1,5 @@
 use std::fs;
+use std::io::prelude::*;
 use std::io::BufReader;
 
 use std::path::PathBuf;
@@ -209,7 +210,14 @@ fn emu() {
 fn asm() {
     let file = fs::File::open(&CFG.file).unwrap();
     let mut reader = BufReader::new(file);
-    let _vec = assemble_buf(&mut reader).unwrap();
+    let words = assemble_buf(&mut reader).unwrap();
+
+    if let Some(path) = &CFG.output {
+        let mut output = fs::File::create(&path).unwrap();
+        for w in words {
+            output.write_all(&w.to_le_bytes()).unwrap();
+        }
+    }
 }
 
 fn main() {
