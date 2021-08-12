@@ -1,6 +1,8 @@
-use crate::error::AssemblerError;
-use lib_rv32_common::{constants::*, parse_int};
 use std::collections::HashMap;
+
+use lib_rv32_common::{constants::*, parse_int};
+
+use crate::error::AssemblerError;
 
 /// Convert an instruction to it's tokens, stripping out whitespace,
 /// parenthesis, and commas.

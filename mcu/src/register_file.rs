@@ -1,6 +1,7 @@
-pub use lib_rv32_isa::traits::RegisterFile as RegisterFileTrait;
-use lib_rv32_isa::{RiscvError, common::constants::*};
 use log::info;
+
+pub use lib_rv32_isa::traits::RegisterFile as RegisterFileTrait;
+use lib_rv32_isa::{common::constants::*, RiscvError};
 
 /// Heap allocated implementation of a register file.
 #[derive(Default, Clone)]

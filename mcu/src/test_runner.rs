@@ -1,14 +1,13 @@
+use std::{fs, path::Path};
+
 use glob::glob;
+use log::{info, Level, LevelFilter, Metadata, Record};
 
-use std::fs;
-use std::path::Path;
-
-use crate::*;
 use lib_rv32_isa::{common::constants::*, exec_one, RiscvError};
 
-const MEM_SIZE: u32 = 0x10000;
+use crate::*;
 
-use log::{info, Level, LevelFilter, Metadata, Record};
+const MEM_SIZE: u32 = 0x10000;
 
 struct Logger;
 

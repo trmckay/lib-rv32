@@ -1,18 +1,18 @@
-use std::fs;
-use std::io::prelude::*;
-use std::io::BufReader;
+pub mod assertions;
 
-use std::path::PathBuf;
+use std::{
+    fs,
+    io::{prelude::*, BufReader},
+    path::PathBuf,
+};
 
 use clap::{App, Arg};
 use lazy_static::lazy_static;
-use log::info;
-use log::{Level, LevelFilter, Metadata, Record};
+use log::{info, Level, LevelFilter, Metadata, Record};
 
 use lib_rv32_asm::assemble_buf;
 use lib_rv32_mcu::{common::constants::*, isa::exec_one, *};
 
-pub mod assertions;
 use assertions::Assertions;
 
 const DEFAULT_MEM_SIZE: usize = 1024 * 64;

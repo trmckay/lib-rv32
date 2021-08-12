@@ -1,9 +1,9 @@
-use std::fs;
-use std::path::Path;
+use std::{fs, path::Path};
 
-use lib_rv32_mcu::common::constants::*;
-use lib_rv32_mcu::common::parse_int;
-use lib_rv32_mcu::isa::traits::*;
+use lib_rv32_mcu::{
+    common::{constants::*, parse_int},
+    isa::traits::*,
+};
 
 /// Used to contain a set of assertions about the state of an MCU.
 pub struct Assertions {

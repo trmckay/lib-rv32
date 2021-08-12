@@ -1,11 +1,12 @@
-use crate::{
-    b_imm, decode::*, decode_func3, decode_func7, decode_i_imm, decode_j_imm, decode_opcode,
-    decode_rd, decode_rs1, decode_rs2, decode_s_imm, decode_u_imm,
-};
-use crate::{traits::Memory, traits::RegisterFile, RiscvError};
+use log::info;
+
 use lib_rv32_common::constants::*;
 
-use log::info;
+use crate::{
+    b_imm, decode::*, decode_func3, decode_func7, decode_i_imm, decode_j_imm, decode_opcode,
+    decode_rd, decode_rs1, decode_rs2, decode_s_imm, decode_u_imm, traits::Memory,
+    traits::RegisterFile, RiscvError,
+};
 
 /// Decode and execute instruction. This will use the program counter to
 /// fetch an instruction from memory, decode/evaluate it, and commit the

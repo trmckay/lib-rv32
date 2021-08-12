@@ -1,4 +1,5 @@
-use lib_rv32_common::{*, instructions, constants::*};
+use lib_rv32_common::{constants::*, instructions, *};
+
 use crate::*;
 
 macro_rules! assert_eq {

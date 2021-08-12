@@ -7,11 +7,11 @@ mod register_file;
 #[cfg(test)]
 mod test_runner;
 
+pub use lib_rv32_isa as isa;
+pub use lib_rv32_isa::common;
+
 pub use memory::*;
 pub use register_file::*;
-
-pub use lib_rv32_isa as isa;
-pub use lib_rv32_isa::common as common;
 
 /// Reference implementation of an MCU. Contains a PC,
 /// register file, and memory.
@@ -36,7 +36,7 @@ impl Mcu {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use lib_rv32_isa::{exec_one, common::instructions};
+    use lib_rv32_isa::{common::instructions, exec_one};
 
     const MEM_SIZE: u32 = 0x10000;
 

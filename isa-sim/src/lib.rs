@@ -9,10 +9,10 @@ mod exec;
 /// an MCU.
 pub mod traits;
 
-pub use error::{AssemblerError, RiscvError};
-pub use exec::exec_one;
+#[cfg(test)]
+mod test;
 
 pub use lib_rv32_common as common;
 
-#[cfg(test)]
-mod test;
+pub use error::RiscvError;
+pub use exec::exec_one;

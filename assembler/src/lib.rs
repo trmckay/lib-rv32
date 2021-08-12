@@ -3,9 +3,9 @@ mod encode;
 mod error;
 mod parse;
 
-pub use assembler::*;
+#[cfg(test)]
+mod test;
 
 pub use lib_rv32_common::constants;
 
-#[cfg(test)]
-mod test;
+pub use assembler::*;

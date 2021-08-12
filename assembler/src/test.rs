@@ -1,6 +1,8 @@
-use crate::{*, parse::*};
-use lib_rv32_common::{instructions, constants::*};
 use std::collections::HashMap;
+
+use lib_rv32_common::{constants::*, instructions};
+
+use crate::{parse::*, *};
 
 #[test]
 fn test_tokenize() {
@@ -93,7 +95,6 @@ fn test_parse_imm() {
     assert_eq!(-24, parse_imm("-24", &labels, pc).unwrap() as i32);
     assert_eq!(16, parse_imm("16", &labels, pc).unwrap());
 }
-
 
 macro_rules! assert_eq {
     ($a:expr, $b:expr) => {

@@ -1,8 +1,9 @@
-pub use lib_rv32_isa::traits::Memory as MemoryTrait;
-use lib_rv32_isa::{RiscvError, common::bit_slice};
+use std::{fs, path::Path};
+
 use log::info;
-use std::fs;
-use std::path::Path;
+
+pub use lib_rv32_isa::traits::Memory as MemoryTrait;
+use lib_rv32_isa::{common::bit_slice, RiscvError};
 
 /// Heap allocated, little-endian implementation of memory.
 #[derive(Clone)]

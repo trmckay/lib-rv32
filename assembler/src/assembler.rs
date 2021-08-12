@@ -1,11 +1,14 @@
+use std::{collections::HashMap, io::prelude::*};
+
+use log::info;
+
+use lib_rv32_common::constants::*;
+
 use crate::{
     encode_b_imm, encode_func3, encode_func7, encode_i_imm, encode_j_imm, encode_opcode, encode_rd,
     encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, error::AssemblerError, match_func3,
     match_func7, parse::*, tokenize,
 };
-use lib_rv32_common::constants::*;
-use log::info;
-use std::{collections::HashMap, io::prelude::*};
 
 enum InstructionFormat {
     Itype,

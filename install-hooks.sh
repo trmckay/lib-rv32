@@ -15,8 +15,8 @@ staged_rust=$(git diff --staged --name-only --diff-filter=d | grep -e '.rs$') ||
 rustfmt $staged_rust
 git add $staged_rust
 
-if ! cargo check; then
-    echo "Failed cargo check."
+if ! make check; then
+    echo "Failed check."
     exit 1
 fi
 ''' > .git/hooks/pre-commit
