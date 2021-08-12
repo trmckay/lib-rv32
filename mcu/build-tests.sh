@@ -1,9 +1,9 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 cd $(git rev-parse --show-toplevel)
 
-for dir in `find ./tests/programs -type d -not -path ./tests/programs`; do
+for dir in `find ./cli/programs -type d -not -path ./cli/programs`; do
     (cd $dir && make -f ../Makefile)
 done

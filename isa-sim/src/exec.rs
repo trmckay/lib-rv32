@@ -25,22 +25,6 @@ use log::info;
 ///     `Result<u32, RiscvError>`: Returns the next program counter and
 ///     the error that occurred during execution, if one exists.
 ///
-/// Example:
-/// ```
-/// use lib_rv32::mcu::*;
-/// use lib_rv32::exec_one;
-///
-/// // Create an implementation of `pc`/`mem`/`rf`.
-/// let mut mcu = Mcu::new(1024 * 64);
-///
-/// // Program MCU.
-/// let instruction = 0x018c0c33;
-/// mcu.mem.write_word(0x0, instruction).unwrap();
-///
-/// // Execute a single instruction.
-/// exec_one(&mut mcu.pc, &mut mcu.mem, &mut mcu.rf).unwrap();
-/// ```
-///
 /// A note on signedness:
 ///
 /// We interpret everything as an unsigned 32-bit integer (u32).

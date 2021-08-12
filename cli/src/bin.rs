@@ -1,6 +1,3 @@
-mod assertions;
-mod mcu;
-
 use std::fs;
 use std::io::prelude::*;
 use std::io::BufReader;
@@ -13,10 +10,9 @@ use log::info;
 use log::{Level, LevelFilter, Metadata, Record};
 
 use lib_rv32_asm::assemble_buf;
-use lib_rv32_sim::exec_one;
-use lib_rv32_common::constants::*;
+use lib_rv32_mcu::{common::constants::*, isa::exec_one, *};
 
-use mcu::*;
+pub mod assertions;
 use assertions::Assertions;
 
 const DEFAULT_MEM_SIZE: usize = 1024 * 64;

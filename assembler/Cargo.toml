@@ -14,6 +14,9 @@ readme = "./README.md"
 log = "0.4.*"
 lib_rv32_common = { path = "../common" }
 
+[dev-dependencies]
+lib_rv32_isa = { path = "../isa-sim" }
+
 [lib]
 name = "lib_rv32_asm"
 path = "src/lib.rs"

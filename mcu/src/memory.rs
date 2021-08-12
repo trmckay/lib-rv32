@@ -1,6 +1,5 @@
-pub use lib_rv32_sim::traits::Memory as MemoryTrait;
-use lib_rv32_sim::RiscvError;
-use lib_rv32_common::bit_slice;
+pub use lib_rv32_isa::traits::Memory as MemoryTrait;
+use lib_rv32_isa::{RiscvError, common::bit_slice};
 use log::info;
 use std::fs;
 use std::path::Path;
@@ -277,17 +276,6 @@ mod test {
             mem.write_word(ADDR, data).unwrap();
             assert_eq!(data, mem.read_word(ADDR).unwrap());
         }
-    }
-
-    #[test]
-    fn test_program_big_endian() {
-        const NUM: u32 = 0x12345678;
-        const BE_BYTES: [u8; 4] = [0x12, 0x34, 0x56, 0x78];
-
-        let mut mem = Memory::new(1024);
-        mem.program_be_bytes(&BE_BYTES).unwrap();
-
-        assert_eq!(NUM, mem.read_word(0).unwrap());
     }
 
     #[test]

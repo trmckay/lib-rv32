@@ -7,7 +7,6 @@ macro_rules! declare_ir {
 }
 
 // ADD_SAME_REG_FIELDS_IR[i] = "add Xi, Xi, Xi"
-#[allow(dead_code)]
 pub const ADD_SAME_REG_FIELDS_IRS: [u32; 32] = [
     0x00000033, 0x001080b3, 0x00210133, 0x003181b3, 0x00420233, 0x005282b3, 0x00630333, 0x007383b3,
     0x00840433, 0x009484b3, 0x00a50533, 0x00b585b3, 0x00c60633, 0x00d686b3, 0x00e70733, 0x00f787b3,

@@ -3,8 +3,8 @@ use glob::glob;
 use std::fs;
 use std::path::Path;
 
-use lib_rv32::mcu::*;
-use lib_rv32::{constants::*, exec_one, RiscvError};
+use crate::*;
+use lib_rv32_isa::{common::constants::*, exec_one, RiscvError};
 
 const MEM_SIZE: u32 = 0x10000;
 
@@ -122,7 +122,7 @@ fn test_program_harness() {
         .unwrap();
 
     let mut pass = true;
-    for dir in match glob("./tests/programs/*") {
+    for dir in match glob("./programs/*") {
         Err(_) => return,
         Ok(p) => p,
     }

@@ -1,5 +1,5 @@
-use lib_rv32::{constants::*, *};
-mod instructions;
+use lib_rv32_common::{*, instructions, constants::*};
+use crate::*;
 
 macro_rules! assert_eq {
     ($a:expr, $b:expr) => {

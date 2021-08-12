@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 /// Decoding macros.
 pub mod decode;
 /// Enumeration for errors thrown by an MCU.
@@ -14,4 +12,7 @@ pub mod traits;
 pub use error::{AssemblerError, RiscvError};
 pub use exec::exec_one;
 
-pub use lib_rv32_common::constants;
+pub use lib_rv32_common as common;
+
+#[cfg(test)]
+mod test;
