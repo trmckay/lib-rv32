@@ -1,10 +1,9 @@
-use crate::constants::*;
-use crate::decode::*;
 use crate::{
-    b_imm, decode_func3, decode_func7, decode_i_imm, decode_j_imm, decode_opcode, decode_rd,
-    decode_rs1, decode_rs2, decode_s_imm, decode_u_imm,
+    b_imm, decode::*, decode_func3, decode_func7, decode_i_imm, decode_j_imm, decode_opcode,
+    decode_rd, decode_rs1, decode_rs2, decode_s_imm, decode_u_imm,
 };
 use crate::{traits::Memory, traits::RegisterFile, RiscvError};
+use lib_rv32_common::constants::*;
 
 use log::info;
 

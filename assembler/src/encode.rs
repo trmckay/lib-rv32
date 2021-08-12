@@ -46,7 +46,7 @@ macro_rules! encode_i_imm {
         let n_bits = ($n & 0xFFF) as u32;
         let mut res: u32 = 0;
         res |= (n_bits as u32) << 20;
-        let sign_bit = if (($n as u32) & crate::bit!(31)) != 0 {
+        let sign_bit = if (($n as u32) & lib_rv32_common::bit!(31)) != 0 {
             1
         } else {
             0

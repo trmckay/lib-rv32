@@ -1,0 +1,15 @@
+[package]
+name = "lib_rv32_common"
+description = "Common data for all lib_rv32 crates."
+keywords = ["riscv", "testing", "simulator", "emulator", "assembler"]
+authors = ["Trevor McKay <tm@trmckay.com>"]
+homepage = "https://github.com/trmckay/lib-rv32"
+repository = "https://github.com/trmckay/lib-rv32"
+version = "0.1.1"
+edition = "2018"
+license = "MIT"
+readme = "./README.md"
+
+[lib]
+name = "lib_rv32_common"
+path = "src/lib.rs"

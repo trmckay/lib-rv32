@@ -1,0 +1,9 @@
+{
+    "max_cycles": 80,
+    "stop_pc": 24,
+    "assertions": {
+        "registers": {
+            "a0": 20
+        }
+    }
+}

@@ -6,7 +6,7 @@ use std::{
 
 #[cfg(debug_assertions)]
 fn build_tests() {
-    let output = process::Command::new("bin/build-tests.sh")
+    let output = process::Command::new("./build-tests.sh")
         .output()
         .expect("Failed to execute test build script.");
 

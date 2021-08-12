@@ -1,5 +1,6 @@
-pub use crate::traits::Memory as MemoryTrait;
-use crate::{bit_slice, RiscvError};
+pub use lib_rv32_sim::traits::Memory as MemoryTrait;
+use lib_rv32_sim::RiscvError;
+use lib_rv32_common::bit_slice;
 use log::info;
 use std::fs;
 use std::path::Path;
@@ -83,18 +84,6 @@ impl Memory {
         Ok(())
     }
 
-    /// Program the memory from a vector of big-endian bytes.
-    pub fn program_be_bytes(&mut self, bytes: &[u8]) -> Result<(), RiscvError> {
-        for (word_addr, chunk) in bytes.chunks(4).enumerate() {
-            for (byte_offset, byte) in chunk.iter().rev().enumerate() {
-                if let Err(why) = self.write(word_addr * 4 + byte_offset, *byte as u32, 1, false) {
-                    return Err(why);
-                }
-            }
-        }
-        Ok(())
-    }
-
     /// Program the memory from a vector of little-endian bytes.
     pub fn program_le_bytes(&mut self, bytes: &[u8]) -> Result<(), RiscvError> {
         for (word_addr, chunk) in bytes.chunks(4).enumerate() {
@@ -102,16 +91,6 @@ impl Memory {
                 if let Err(why) = self.write(word_addr * 4 + byte_offset, *byte as u32, 1, false) {
                     return Err(why);
                 }
-            }
-        }
-        Ok(())
-    }
-
-    /// Program the memory from a vector of 32-bit words.
-    pub fn program_words(&mut self, words: &[u32]) -> Result<(), RiscvError> {
-        for (word_addr, word) in words.iter().enumerate() {
-            if let Err(why) = self.write(word_addr * 4, *word, 4, false) {
-                return Err(why);
             }
         }
         Ok(())

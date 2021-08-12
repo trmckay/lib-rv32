@@ -1,4 +1,4 @@
-pub use crate::{bit_concat, bit_extend, bit_slice, sized_bit_extend, sized_bit_slice};
+pub use lib_rv32_common::{bit_concat, bit_extend, bit_slice, sized_bit_extend, sized_bit_slice};
 
 /// Decode the J-type immediate from a `u32` formatted instruction.
 #[macro_export]

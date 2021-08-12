@@ -1,0 +1,28 @@
+[package]
+name = "lib_rv32_mcu"
+description = "Extension to lib_rv32 that provides an MCU implementation"
+keywords = ["riscv", "testing", "simulator", "emulator"]
+authors = ["Trevor McKay <tm@trmckay.com>"]
+homepage = "https://github.com/trmckay/lib-rv32"
+repository = "https://github.com/trmckay/lib-rv32"
+version = "0.1.1"
+edition = "2018"
+license = "MIT"
+readme = "./README.md"
+
+[dependencies]
+serde_json = "1.0.*"
+lazy_static = "1.4.*"
+log = "0.4.*"
+clap = "2.33.*"
+lib_rv32_sim = { path = "../isa-sim" }
+lib_rv32_asm = { path = "../assembler" }
+lib_rv32_common = { path = "../common" }
+
+[dev-dependencies]
+glob = "0.3.*"
+
+
+[[bin]]
+name = "lib-rv32-cli"
+path = "src/bin.rs"

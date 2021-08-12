@@ -1,5 +1,6 @@
-pub use crate::traits::RegisterFile as RegisterFileTrait;
-use crate::{constants::*, RiscvError};
+pub use lib_rv32_sim::traits::RegisterFile as RegisterFileTrait;
+use lib_rv32_sim::RiscvError;
+use lib_rv32_common::constants::*;
 use log::info;
 
 /// Heap allocated implementation of a register file.
