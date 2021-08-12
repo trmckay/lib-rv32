@@ -5,7 +5,7 @@ use lib_rv32::{exec_one, mcu::*};
 const MEM_SIZE: u32 = 1024 * 64; // 64 KB
 
 #[test]
-fn addi_x5_x5_1() {
+fn test_addi_x5_x5_1() {
     let mut mcu = Mcu::new(MEM_SIZE as usize);
     let bytes = instructions::ADDI_X5_X5_1.to_le_bytes();
     mcu.mem.program_le_bytes(&bytes).unwrap();
@@ -29,7 +29,7 @@ fn addi_x5_x5_1() {
 }
 
 #[test]
-fn addi_x5_x6_neg_1() {
+fn test_addi_x5_x6_neg_1() {
     let mut mcu = Mcu::new(MEM_SIZE as usize);
     let bytes = instructions::ADDI_X5_X6_NEG_1.to_le_bytes();
     mcu.mem.program_le_bytes(&bytes).unwrap();

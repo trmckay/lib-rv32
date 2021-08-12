@@ -168,10 +168,17 @@ Tests are run in CI, but can be run locally provided your system has `riscv(32|6
 
 ## TODO
 
+### ISA simulator
+
 - [ ] Base/integer ISA (i)
     - [x] Basic support
     - [ ] CSR/interrupt instructions
 - [ ] Multiply (m)
 - [ ] Atomics (a)
 - [ ] Compressed (c)
+
+
+### General
+
 - [ ] Support ELF binaries
+- [ ] Integrated assembler

@@ -14,9 +14,11 @@ include = ["/src", "/LICENSE", "/README.md"]
 [dependencies]
 serde_json = "1.0.*"
 lazy_static = "1.4.*"
-glob = "0.3.*"
 log = "0.4.*"
 clap = "2.33.*"
+
+[dev-dependencies]
+glob = "0.3.*"
 
 [lib]
 name = "lib_rv32"

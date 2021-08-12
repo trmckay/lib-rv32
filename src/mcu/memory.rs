@@ -169,18 +169,18 @@ mod test {
 
     #[test]
     #[should_panic]
-    fn create_misaligned() {
+    fn test_create_misaligned() {
         let _ = Memory::new(3);
     }
 
     #[test]
     #[should_panic]
-    fn create_zero() {
+    fn test_create_zero() {
         let _ = Memory::new(0);
     }
 
     #[test]
-    fn out_of_bounds() {
+    fn test_out_of_bounds() {
         let mem = Memory::new(1024);
         match mem.read_byte(1028) {
             Err(why) => assert_eq!(why, RiscvError::MemoryOutOfBoundsError(1028)),
@@ -189,7 +189,7 @@ mod test {
     }
 
     #[test]
-    fn misaligned() {
+    fn test_misaligned() {
         let mut mem = Memory::new(1024);
 
         match mem.read_half_word(3) {
@@ -211,13 +211,13 @@ mod test {
     }
 
     #[test]
-    fn create() {
+    fn test_create() {
         let mem = Memory::new(1024);
         assert_eq!(1024, mem.size);
     }
 
     #[test]
-    fn byte() {
+    fn test_byte() {
         let mut mem = Memory::new(1024);
 
         for data in 0..0xFF {
@@ -229,7 +229,7 @@ mod test {
     }
 
     #[test]
-    fn half_word_write() {
+    fn test_half_word_write() {
         const ADDR: u32 = 0x02;
         let mut mem = Memory::new(1024);
 
@@ -241,7 +241,7 @@ mod test {
     }
 
     #[test]
-    fn half_word_read() {
+    fn test_half_word_read() {
         const ADDR: u32 = 0x02;
         let mut mem = Memory::new(1024);
 
@@ -253,7 +253,7 @@ mod test {
     }
 
     #[test]
-    fn half_word_read_write() {
+    fn test_half_word_read_write() {
         const ADDR: u32 = 0x02;
         let mut mem = Memory::new(1024);
         for data in 0..0xFFFF {
@@ -263,7 +263,7 @@ mod test {
     }
 
     #[test]
-    fn word_write() {
+    fn test_word_write() {
         const ADDR: u32 = 0x04;
         let mut mem = Memory::new(1024);
 
@@ -277,7 +277,7 @@ mod test {
     }
 
     #[test]
-    fn word_read() {
+    fn test_word_read() {
         const ADDR: u32 = 0x04;
         let mut mem = Memory::new(1024);
 
@@ -291,7 +291,7 @@ mod test {
     }
 
     #[test]
-    fn word_read_write() {
+    fn test_word_read_write() {
         const ADDR: u32 = 0x04;
         let mut mem = Memory::new(1024);
         for data in 0xFE000000..0xFE100000 {
@@ -301,7 +301,7 @@ mod test {
     }
 
     #[test]
-    fn program_big_endian() {
+    fn test_program_big_endian() {
         const NUM: u32 = 0x12345678;
         const BE_BYTES: [u8; 4] = [0x12, 0x34, 0x56, 0x78];
 
@@ -312,7 +312,7 @@ mod test {
     }
 
     #[test]
-    fn program_little_endian() {
+    fn test_program_little_endian() {
         const NUM: u32 = 0x12345678;
         const LE_BYTES: [u8; 4] = [0x78, 0x56, 0x34, 0x12];
 

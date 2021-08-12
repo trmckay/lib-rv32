@@ -1,6 +1,10 @@
+use crate::constants::*;
 use crate::decode::*;
-use crate::{b_imm, func3, func7, i_imm, j_imm, opcode, rd, rs1, rs2, s_imm, u_imm};
-use crate::{traits::Memory, traits::RegisterFile, RiscvError, REG_NAMES};
+use crate::{
+    b_imm, decode_func3, decode_func7, decode_i_imm, decode_j_imm, decode_opcode, decode_rd,
+    decode_rs1, decode_rs2, decode_s_imm, decode_u_imm,
+};
+use crate::{traits::Memory, traits::RegisterFile, RiscvError};
 
 use log::info;
 
@@ -62,14 +66,14 @@ where
         return Err(why);
     }
     let ir = ir.unwrap();
-    let opcode = opcode!(ir) as u8;
+    let opcode = decode_opcode!(ir) as u8;
 
     info!("[{:04x}]  {:08x}  |  ", pc, ir);
 
     return match opcode {
         OPCODE_LUI => {
-            let rd = rd!(ir);
-            let imm = u_imm!(ir);
+            let rd = decode_rd!(ir);
+            let imm = decode_u_imm!(ir);
 
             info!(
                 "{:25} |  ",
@@ -89,8 +93,8 @@ where
         }
 
         OPCODE_AUIPC => {
-            let rd = rd!(ir);
-            let imm = u_imm!(ir);
+            let rd = decode_rd!(ir);
+            let imm = decode_u_imm!(ir);
 
             info!(
                 "{:25} |  ",
@@ -112,8 +116,8 @@ where
         }
 
         OPCODE_JAL => {
-            let rd = rd!(ir);
-            let imm = j_imm!(ir);
+            let rd = decode_rd!(ir);
+            let imm = decode_j_imm!(ir);
 
             info!(
                 "{:25} |  ",
@@ -134,9 +138,9 @@ where
         }
 
         OPCODE_JALR => {
-            let rd = rd!(ir);
-            let rs1 = rs1!(ir);
-            let imm = i_imm!(ir);
+            let rd = decode_rd!(ir);
+            let rs1 = decode_rs1!(ir);
+            let imm = decode_i_imm!(ir);
 
             info!(
                 "{:25} |  ",
@@ -162,17 +166,17 @@ where
         }
 
         OPCODE_BRANCH => {
-            let rs1 = rs1!(ir);
+            let rs1 = decode_rs1!(ir);
             let rs1_data = match rf.read(rs1) {
                 Ok(d) => d,
                 Err(why) => return Err(why),
             };
-            let rs2 = rs2!(ir);
+            let rs2 = decode_rs2!(ir);
             let rs2_data = match rf.read(rs2) {
                 Ok(d) => d,
                 Err(why) => return Err(why),
             };
-            let func3 = func3!(ir);
+            let func3 = decode_func3!(ir);
             let taken = match func3 {
                 FUNC3_BEQ => rs1_data == rs2_data,
                 FUNC3_BNE => rs1_data != rs2_data,
@@ -220,15 +224,15 @@ where
         }
 
         OPCODE_LOAD => {
-            let rs1 = rs1!(ir);
+            let rs1 = decode_rs1!(ir);
             let base = match rf.read(rs1) {
                 Ok(d) => d,
                 Err(why) => return Err(why),
             };
-            let imm = i_imm!(ir);
+            let imm = decode_i_imm!(ir);
             let addr = base.wrapping_add(imm);
-            let rd = rd!(ir);
-            let func3 = func3!(ir);
+            let rd = decode_rd!(ir);
+            let func3 = decode_func3!(ir);
 
             info!(
                 "{:25} |  ",
@@ -279,10 +283,10 @@ where
         }
 
         OPCODE_STORE => {
-            let rs1 = rs1!(ir);
-            let rs2 = rs2!(ir);
-            let imm = s_imm!(ir);
-            let func3 = func3!(ir);
+            let rs1 = decode_rs1!(ir);
+            let rs2 = decode_rs2!(ir);
+            let imm = decode_s_imm!(ir);
+            let func3 = decode_func3!(ir);
 
             info!(
                 "{:25} |  ",
@@ -313,7 +317,7 @@ where
                 FUNC3_SB => mem.write_byte(addr, data),
                 FUNC3_SH => mem.write_half_word(addr, data),
                 FUNC3_SW => mem.write_word(addr, data),
-                _ => Err(RiscvError::InvalidFunc3Error(ir, func3!(ir))),
+                _ => Err(RiscvError::InvalidFunc3Error(ir, decode_func3!(ir))),
             } {
                 return Err(why);
             }
@@ -324,26 +328,26 @@ where
         }
 
         OPCODE_ARITHMETIC | OPCODE_ARITHMETIC_IMM => {
-            let rd = rd!(ir);
-            let rs1 = rs1!(ir);
+            let rd = decode_rd!(ir);
+            let rs1 = decode_rs1!(ir);
             let lhs = match rf.read(rs1) {
                 Ok(d) => d,
                 Err(why) => return Err(why),
             };
             let rhs = match opcode {
-                OPCODE_ARITHMETIC => match rf.read(rs2!(ir)) {
+                OPCODE_ARITHMETIC => match rf.read(decode_rs2!(ir)) {
                     Ok(d) => d,
                     Err(why) => return Err(why),
                 },
-                OPCODE_ARITHMETIC_IMM => i_imm!(ir),
-                _ => return Err(RiscvError::InvalidOpcodeError(ir, opcode!(ir))),
+                OPCODE_ARITHMETIC_IMM => decode_i_imm!(ir),
+                _ => return Err(RiscvError::InvalidOpcodeError(ir, decode_opcode!(ir))),
             };
             let ir_name: &str;
-            let bi_operator = match func3!(ir) {
+            let bi_operator = match decode_func3!(ir) {
                 // This func3 is complicated, it depends on whether we're
                 // using immediates or not.
                 FUNC3_ADD_SUB => match opcode {
-                    OPCODE_ARITHMETIC => match func3!(ir) {
+                    OPCODE_ARITHMETIC => match decode_func3!(ir) {
                         FUNC7_SUB => {
                             ir_name = "sub";
                             |l: u32, r: u32| l.wrapping_add(r)
@@ -352,13 +356,13 @@ where
                             ir_name = "add";
                             |l: u32, r: u32| l.wrapping_add(r)
                         }
-                        _ => return Err(RiscvError::InvalidFunc7Error(ir, func7!(ir))),
+                        _ => return Err(RiscvError::InvalidFunc7Error(ir, decode_func7!(ir))),
                     },
                     OPCODE_ARITHMETIC_IMM => {
                         ir_name = "add";
                         |l: u32, r: u32| l.wrapping_add(r)
                     }
-                    _ => return Err(RiscvError::InvalidOpcodeError(ir, opcode!(ir))),
+                    _ => return Err(RiscvError::InvalidOpcodeError(ir, decode_opcode!(ir))),
                 },
                 FUNC3_SLL => {
                     ir_name = "sll";
@@ -377,7 +381,7 @@ where
                     ir_name = "xor";
                     |l: u32, r: u32| l ^ r
                 }
-                FUNC3_SRA_SRL => match func7!(ir) {
+                FUNC3_SR => match decode_func7!(ir) {
                     FUNC7_SRA => {
                         ir_name = "sra";
                         |l: u32, r: u32| ((l as i32) >> r) as u32 // sign-extension
@@ -386,7 +390,7 @@ where
                         ir_name = "srl";
                         |l: u32, r: u32| l >> r
                     }
-                    _ => return Err(RiscvError::InvalidFunc3Error(ir, func3!(ir))),
+                    _ => return Err(RiscvError::InvalidFunc3Error(ir, decode_func3!(ir))),
                 },
                 FUNC3_OR => {
                     ir_name = "or";
@@ -396,7 +400,7 @@ where
                     ir_name = "and";
                     |l: u32, r: u32| l & r
                 }
-                _ => return Err(RiscvError::InvalidFunc3Error(ir, func3!(ir))),
+                _ => return Err(RiscvError::InvalidFunc3Error(ir, decode_func3!(ir))),
             };
 
             info!(
@@ -412,14 +416,14 @@ where
                     REG_NAMES[rd as usize],
                     REG_NAMES[rs1 as usize],
                     match opcode {
-                        OPCODE_ARITHMETIC => String::from(REG_NAMES[rs2!(ir) as usize]),
-                        OPCODE_ARITHMETIC_IMM => (i_imm!(ir) as i32).to_string(),
+                        OPCODE_ARITHMETIC => String::from(REG_NAMES[decode_rs2!(ir) as usize]),
+                        OPCODE_ARITHMETIC_IMM => (decode_i_imm!(ir) as i32).to_string(),
                         _ => String::from("?"),
                     }
                 )
             );
 
-            if let Err(why) = rf.write(rd!(ir), bi_operator(lhs, rhs)) {
+            if let Err(why) = rf.write(decode_rd!(ir), bi_operator(lhs, rhs)) {
                 return Err(why);
             }
             *pc += 4;
@@ -427,6 +431,6 @@ where
             info!("\n");
             Ok(())
         }
-        _ => Err(RiscvError::InvalidOpcodeError(ir, opcode!(ir))),
+        _ => Err(RiscvError::InvalidOpcodeError(ir, decode_opcode!(ir))),
     };
 }
