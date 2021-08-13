@@ -5,7 +5,7 @@
 
 ## Overview
 
-lib-rv32 is a collection of Rust library for emulating, learning, and assembling 32-bit RISC-V
+lib-rv32 is a collection of Rust libraries for emulating, learning, and assembling 32-bit RISC-V
 integer ISAs.
 
 - [lib_rv32_isa](https://crates.io/crates/lib_rv32_isa): library for ISA simulation
