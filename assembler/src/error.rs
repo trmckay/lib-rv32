@@ -1,3 +1,4 @@
+/// Enumeration of possible errors when assembling a program.
 #[derive(Debug, PartialEq)]
 pub enum AssemblerError {
     InvalidOperationError,

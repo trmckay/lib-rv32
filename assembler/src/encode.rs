@@ -1,3 +1,4 @@
+/// Encode an integer as a bitmask for the opcode.
 #[macro_export]
 macro_rules! encode_opcode {
     ($n:expr) => {
@@ -5,6 +6,7 @@ macro_rules! encode_opcode {
     };
 }
 
+/// Encode a register number as a bitmask for rd.
 #[macro_export]
 macro_rules! encode_rd {
     ($n:expr) => {
@@ -12,6 +14,7 @@ macro_rules! encode_rd {
     };
 }
 
+/// Encode a register number as a bitmask for rs1.
 #[macro_export]
 macro_rules! encode_rs1 {
     ($n:expr) => {
@@ -19,6 +22,7 @@ macro_rules! encode_rs1 {
     };
 }
 
+/// Encode a register number as a bitmask for rs2.
 #[macro_export]
 macro_rules! encode_rs2 {
     ($n:expr) => {
@@ -26,6 +30,7 @@ macro_rules! encode_rs2 {
     };
 }
 
+/// Encode an integer as a bitmask for func3.
 #[macro_export]
 macro_rules! encode_func3 {
     ($n: expr) => {
@@ -33,6 +38,7 @@ macro_rules! encode_func3 {
     };
 }
 
+/// Encode an integer as a bitmask for func7.
 #[macro_export]
 macro_rules! encode_func7 {
     ($n: expr) => {
@@ -40,6 +46,7 @@ macro_rules! encode_func7 {
     };
 }
 
+/// Encode and integer as a bitmask for an I-type immediate.
 #[macro_export]
 macro_rules! encode_i_imm {
     ($n:expr) => {{
@@ -56,6 +63,7 @@ macro_rules! encode_i_imm {
     }};
 }
 
+/// Encode and integer as a bitmask for a J-type immediate.
 #[macro_export]
 macro_rules! encode_j_imm {
     ($n:expr) => {
@@ -67,6 +75,7 @@ macro_rules! encode_j_imm {
     };
 }
 
+/// Encode and integer as a bitmask for a U-type immediate.
 #[macro_export]
 macro_rules! encode_u_imm {
     ($n:expr) => {
@@ -74,6 +83,7 @@ macro_rules! encode_u_imm {
     };
 }
 
+/// Encode and integer as a bitmask for an S-type immediate.
 #[macro_export]
 macro_rules! encode_s_imm {
     ($n:expr) => {
@@ -81,6 +91,7 @@ macro_rules! encode_s_imm {
     };
 }
 
+/// Encode and integer as a bitmask for a B-type immediate.
 #[macro_export]
 macro_rules! encode_b_imm {
     ($n:expr) => {

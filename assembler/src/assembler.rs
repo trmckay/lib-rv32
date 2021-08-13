@@ -19,6 +19,15 @@ enum InstructionFormat {
     Btype,
 }
 
+/// Assemble a single instruction.
+///
+/// Parameters:
+///     `ir_string: &str`: The instruction
+///     `labels: &mut std::collections::HashMap<String, u32>`: Map of labels
+///     `pc: u32` Current location of the program
+///
+/// Returns:
+///     `Result<Option<u32>>`: The assembled binary instruction, an error, or nothing.
 pub fn assemble_ir(
     ir_string: &str,
     labels: &mut HashMap<String, u32>,
@@ -170,6 +179,8 @@ pub fn assemble_ir(
     Ok(Some(ir))
 }
 
+/// Assemble a `BufRead` down to a vector of words. The input should contain
+/// the entire program.
 pub fn assemble_buf<R>(reader: &mut R) -> Result<Vec<u32>, AssemblerError>
 where
     R: BufRead,

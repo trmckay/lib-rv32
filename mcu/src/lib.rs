@@ -7,7 +7,10 @@ mod register_file;
 #[cfg(test)]
 mod test_runner;
 
+/// Re-export ISA simulator.
 pub use lib_rv32_isa as isa;
+
+/// Re-export common library.
 pub use lib_rv32_isa::common;
 
 pub use memory::*;

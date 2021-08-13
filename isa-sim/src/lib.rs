@@ -12,6 +12,7 @@ pub mod traits;
 #[cfg(test)]
 mod test;
 
+/// Re-export common library.
 pub use lib_rv32_common as common;
 
 pub use error::RiscvError;

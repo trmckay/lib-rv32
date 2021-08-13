@@ -20,6 +20,7 @@ macro_rules! tokenize {
     };
 }
 
+/// Match an operation to the correct opcode.
 pub fn match_opcode(op: &str) -> Result<u8, AssemblerError> {
     let opcode = match op {
         "add" | "sub" | "sll" | "slt" | "sltu" | "xor" | "sra" | "or" | "and" => OPCODE_ARITHMETIC,
@@ -36,6 +37,7 @@ pub fn match_opcode(op: &str) -> Result<u8, AssemblerError> {
     Ok(opcode)
 }
 
+/// Match a register number or name to its integer number.
 pub fn match_register(reg: &str) -> Result<u8, AssemblerError> {
     if reg.starts_with('x') {
         match reg.strip_prefix('x').unwrap().parse() {
@@ -50,6 +52,7 @@ pub fn match_register(reg: &str) -> Result<u8, AssemblerError> {
     }
 }
 
+/// Parse a label or an immediate literal into an integer.
 pub fn parse_imm(s: &str, labels: &HashMap<String, u32>, pc: u32) -> Result<u32, AssemblerError> {
     let num = parse_int!(i64, s);
     match num {
@@ -65,6 +68,7 @@ pub fn parse_imm(s: &str, labels: &HashMap<String, u32>, pc: u32) -> Result<u32,
     }
 }
 
+/// Match an operation to the correct func3.
 #[macro_export]
 macro_rules! match_func3 {
     ($t:expr) => {
@@ -96,6 +100,7 @@ macro_rules! match_func3 {
     };
 }
 
+/// Match an operation to the correct func7.
 #[macro_export]
 macro_rules! match_func7 {
     ($t:expr) => {
