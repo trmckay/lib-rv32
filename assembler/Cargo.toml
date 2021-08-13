@@ -1,0 +1,22 @@
+[package]
+name = "lib_rv32_asm"
+description = "An extension to lib_rv32 which provides an assembler."
+keywords = ["riscv", "testing", "simulator", "emulator", "assembler"]
+authors = ["Trevor McKay <tm@trmckay.com>"]
+homepage = "https://github.com/trmckay/lib-rv32"
+repository = "https://github.com/trmckay/lib-rv32"
+version = "0.1.1"
+edition = "2018"
+license = "MIT"
+readme = "./README.md"
+
+[dependencies]
+log = "0.4.*"
+lib_rv32_common = { path = "../common" }
+
+[dev-dependencies]
+lib_rv32_isa = { path = "../isa-sim" }
+
+[lib]
+name = "lib_rv32_asm"
+path = "src/lib.rs"

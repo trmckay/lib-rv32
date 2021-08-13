@@ -16,7 +16,5 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build
-      run: cargo build --release
-    - name: Check style
-      run: rustfmt --check **/*.rs
+    - name: Check
+      run: make check

@@ -1,17 +1,24 @@
 # lib-rv32
 
-Rust library for emulating 32-bit RISC-V
-
 ![build](https://github.com/trmckay/lib-rv32i/actions/workflows/build.yml/badge.svg)
 ![tests](https://github.com/trmckay/lib-rv32i/actions/workflows/test.yml/badge.svg)
 
-[**Documentation** on docs.rs](https://docs.rs/lib_rv32)
+## Overview
 
-[**Packaged** on crates.io](https://crates.io/crates/lib_rv32)
+lib-rv32 is a collection of Rust library for emulating, learning, and assembling 32-bit RISC-V
+integer ISAs.
+
+- [lib_rv32_isa](https://crates.io/crates/lib_rv32_isa): library for ISA simulation
+- [lib_rv32_mcu](https://crates.io/crates/lib_rv32_mcu): reference implemenation of an MCU used in conjunction with lib_rv32_isa
+- [lib_rv32_asm](https://crates.io/crates/lib_rv32_asm): library for assembling RISC-V programs
+- [lib_rv32_cli](https://crates.io/crates/lib_rv32_cli): CLI tool exposing the libraries
+
 
 ---
 
-## Libray
+## Libraries
+
+### ISA simulator
 
 This library can execute instructions against any memory and register file that implements
 the required primitives in the traits `lib_rv32::traits::{Memory, RegisterFile}`. This is to
@@ -21,57 +28,27 @@ However, reference implementations are provided in `lib_rv32::mcu`. The library 
 functions to read from the memory, registers, and step a single instruction. Since, the
 user decides when to call these functions, these will probably fit most use-cases.
 
-### Example
+### MCU
 
-`my_app.rs`:
-```rust
-use std::path::Path;
+The MCU crate provides an implemenation of `Memory` and `RegisterFile` for use with the ISA
+simulator. With this, one can fully emulate an embedded RISC-V core.
 
-use lib_rv32::mcu::*;
-use lib_rv32::exec_one;
+### Assembler
 
-fn main() {
-    let mut mcu: Mcu = Mcu::new(1024 * 64);
+This crate can be used to assemble simple RISC-V assembly programs. The main functions offered
+by this library are:
 
-    mcu.mem
-        .program_from_file(&Path::from("./prog.bin"))
-        .expect("Could not program MCU.");
+- `assemble_ir`: assemble an instruction `&str` to a `u32`
+- `assemble_buf`: assemble a `BufRead` to a `Vec<u32>`
 
-    loop {
-        exec_one(&mut mcu.pc, &mut mcu.mem, &mut mcu.rf).unwrap();
-    }
-}
-```
 
----
 ## CLI
 
-### Usage
+### Emulator
 
-The CLI is one example of how the core library can be used in an application.
-The primary use of the CLI is tracing execution of RISC-V programs and making assertions
+The primary use of the emulator is tracing execution of RISC-V programs and making assertions
 about their behavior. It currently only supports simple binary memory images
 (not ELF binaries).
-
-```
-USAGE:
-    lrv-cli [FLAGS] [OPTIONS] <binary>
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-    -v, --verbose    Enable verbose logging
-
-OPTIONS:
-    -a, --assertions <ASSERTIONS>    A JSON formatted set of assertions.
-    -m, --mem <MEM_SIZE>             Set the size of the MCU memory (default 64 KB).
-    -s, --stop <STOP_PC>             Set the program counter at which to stop emulation.
-
-ARGS:
-    <binary>    RISC-V binary to execute
-```
-
-### Example
 
 Enter assertions into a JSON file (note: all numbers are strings to allow for hex or decimal radices).
 
@@ -118,6 +95,13 @@ a0 == 20
 *0x00000000 == 65815
 ```
 
+### Assembler
+
+The CLI also exposes the assembler via the command line. You can assemble the file
+`program.s` to `program.bin` using
+
+`lrv-cli -cv program.s -o program.bin`
+
 ---
 
 ## Testing
@@ -126,7 +110,7 @@ This project has a very flexible testing system.
 
 Unit-tests are provided wherever appropriate.
 
-Additionally, to test the whole system, test programs can be added to `tests/programs`.
+Additionally, to test the whole system, test programs can be added to `mcu/tests/programs`.
 A test is simply a directory containing `.c` and `.s` source files and a `test_case.json`
 consisting of assertions about the state of the MCU after the program is complete.
 
@@ -165,20 +149,3 @@ Disassembly of section .text.init:
 ```
 
 Tests are run in CI, but can be run locally provided your system has `riscv(32|64)-unknown-elf-gcc`.
-
-## TODO
-
-### ISA simulator
-
-- [ ] Base/integer ISA (i)
-    - [x] Basic support
-    - [ ] CSR/interrupt instructions
-- [ ] Multiply (m)
-- [ ] Atomics (a)
-- [ ] Compressed (c)
-
-
-### General
-
-- [ ] Support ELF binaries
-- [ ] Integrated assembler
