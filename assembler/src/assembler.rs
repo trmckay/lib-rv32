@@ -1,4 +1,6 @@
-use std::{collections::HashMap, io::prelude::*};
+use std::collections::HashMap;
+#[cfg(not(target_arch = "wasm32"))]
+use std::io::prelude::*;
 
 use log::info;
 
@@ -181,6 +183,7 @@ pub fn assemble_ir(
 
 /// Assemble a `BufRead` down to a vector of words. The input should contain
 /// the entire program.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn assemble_buf<R>(reader: &mut R) -> Result<Vec<u32>, AssemblerError>
 where
     R: BufRead,
