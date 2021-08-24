@@ -19,7 +19,6 @@ format:
 check:
 	rustfmt **/*.rs --check
 	cargo check --release
-	(cd common && cargo check --release --target wasm32-unknown-unknown)
 	(cd isa-sim && cargo check --release --target wasm32-unknown-unknown)
 	(cd mcu && cargo check --release --target wasm32-unknown-unknown)
 	(cd assembler && cargo check --release --target wasm32-unknown-unknown)

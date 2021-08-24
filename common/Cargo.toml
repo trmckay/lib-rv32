@@ -1,5 +1,5 @@
 [package]
-name = "lib_rv32_common"
+name = "lib-rv32-common"
 description = "Common data for all lib_rv32 crates."
 keywords = ["riscv", "testing", "simulator", "emulator", "assembler"]
 authors = ["Trevor McKay <tm@trmckay.com>"]

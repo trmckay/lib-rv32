@@ -1,5 +1,5 @@
 [package]
-name = "lib_rv32_isa"
+name = "lib-rv32-isa"
 description = "A library and CLI tool for emulating, testing, and learning RISC-V."
 keywords = ["riscv", "testing", "simulator", "emulator"]
 authors = ["Trevor McKay <tm@trmckay.com>"]
@@ -10,10 +10,11 @@ edition = "2018"
 license = "MIT"
 readme = "./README.md"
 
-[dependencies]
-log = "0.4.*"
-lib_rv32_common = { path = "../common" }
-
 [lib]
 name = "lib_rv32_isa"
 path = "src/lib.rs"
+
+[dependencies]
+log = "0.4.*"
+lib-rv32-common = { path = "../common" }
+wasm-bindgen = "0.2.*"
