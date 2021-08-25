@@ -5,10 +5,11 @@ keywords = ["riscv", "testing", "simulator", "emulator"]
 authors = ["Trevor McKay <tm@trmckay.com>"]
 homepage = "https://github.com/trmckay/lib-rv32"
 repository = "https://github.com/trmckay/lib-rv32"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2018"
 license = "MIT"
 readme = "../README.md"
+exclude = ["build.rs", "build-tests.sh", "programs"]
 
 [lib]
 name = "lib_rv32_mcu"
