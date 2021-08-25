@@ -6,3 +6,6 @@
 *.bin
 *.elf
 **/dump.txt
+/wasm/www/node_modules
+/wasm/www/dist
+/wasm/www/package-lock.json
