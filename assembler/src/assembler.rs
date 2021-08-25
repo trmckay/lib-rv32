@@ -1,4 +1,6 @@
-use std::{collections::HashMap, io::prelude::*};
+use std::collections::HashMap;
+#[cfg(not(target_arch = "wasm32"))]
+use std::io::prelude::*;
 
 use log::info;
 
@@ -33,6 +35,7 @@ pub fn assemble_ir(
     labels: &mut HashMap<String, u32>,
     pc: u32,
 ) -> Result<Option<u32>, AssemblerError> {
+    let mut msg = String::new();
     let mut ir: u32 = 0;
 
     let mut tokens: Vec<String> = tokenize!(ir_string);
@@ -53,7 +56,7 @@ pub fn assemble_ir(
         return Ok(None);
     }
 
-    info!("{:24} -> [{:02x}] ", ir_string, pc);
+    msg += &format!("{:18} -> [{:02x}] ", ir_string, pc);
 
     let op = &tokens[0][..];
     let opcode = match_opcode(op);
@@ -175,13 +178,16 @@ pub fn assemble_ir(
         InstructionFormat::Rtype => (),
     }
 
-    info!("{:08x}\n", ir);
+    msg += &format!("{:08x}", ir);
+    info!("{}", msg);
+
     Ok(Some(ir))
 }
 
 /// Assemble a `BufRead` down to a vector of words. The input should contain
 /// the entire program.
-pub fn assemble_buf<R>(reader: &mut R) -> Result<Vec<u32>, AssemblerError>
+#[cfg(not(target_arch = "wasm32"))]
+pub fn assemble_program_buf<R>(reader: &mut R) -> Result<Vec<u32>, AssemblerError>
 where
     R: BufRead,
 {
@@ -212,6 +218,28 @@ where
             pc += 4;
         }
         buf.clear();
+    }
+
+    Ok(prog)
+}
+
+/// Assemble a full program of newline-separated instructions.
+pub fn assemble_program(program: &str) -> Result<Vec<u32>, AssemblerError> {
+    let mut prog = Vec::new();
+    let mut labels = HashMap::new();
+    let mut pc: u32 = 0;
+
+    for line in program.split("\n") {
+        let ir = assemble_ir(line, &mut labels, pc);
+
+        if let Err(why) = ir {
+            return Err(why);
+        }
+
+        if let Some(i) = ir.unwrap() {
+            prog.push(i);
+            pc += 4;
+        }
     }
 
     Ok(prog)

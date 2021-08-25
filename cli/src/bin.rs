@@ -10,7 +10,7 @@ use clap::{App, Arg};
 use lazy_static::lazy_static;
 use log::{info, Level, LevelFilter, Metadata, Record};
 
-use lib_rv32_asm::assemble_buf;
+use lib_rv32_asm::assemble_program_buf;
 use lib_rv32_mcu::{common::constants::*, isa::exec_one, *};
 
 use assertions::Assertions;
@@ -214,7 +214,7 @@ fn emu() {
 fn asm() {
     let file = fs::File::open(&CFG.file).unwrap();
     let mut reader = BufReader::new(file);
-    let words = assemble_buf(&mut reader).unwrap();
+    let words = assemble_program_buf(&mut reader).unwrap();
 
     if let Some(path) = &CFG.output {
         let mut output = fs::File::create(&path).unwrap();
