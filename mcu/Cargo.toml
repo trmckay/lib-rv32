@@ -5,10 +5,10 @@ keywords = ["riscv", "testing", "simulator", "emulator"]
 authors = ["Trevor McKay <tm@trmckay.com>"]
 homepage = "https://github.com/trmckay/lib-rv32"
 repository = "https://github.com/trmckay/lib-rv32"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2018"
 license = "MIT"
-readme = "./README.md"
+readme = "../README.md"
 
 [lib]
 name = "lib_rv32_mcu"
@@ -16,7 +16,7 @@ path = "src/lib.rs"
 
 [dependencies]
 log = "0.4.*"
-lib-rv32-isa = { path = "../isa-sim" }
+lib-rv32-isa = "0.2.0"
 serde = { version = "1.0", features = ["derive"] }
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 
