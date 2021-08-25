@@ -17,7 +17,6 @@ path = "src/lib.rs"
 [dependencies]
 log = "0.4.*"
 lib-rv32-common = { path = "../common" }
-wasm-bindgen = "0.2.*"
 
 [dev-dependencies]
 lib-rv32-isa = { path = "../isa-sim" }

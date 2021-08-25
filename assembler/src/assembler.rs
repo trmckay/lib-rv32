@@ -184,7 +184,7 @@ pub fn assemble_ir(
 /// Assemble a `BufRead` down to a vector of words. The input should contain
 /// the entire program.
 #[cfg(not(target_arch = "wasm32"))]
-pub fn assemble_buf<R>(reader: &mut R) -> Result<Vec<u32>, AssemblerError>
+pub fn assemble_program_buf<R>(reader: &mut R) -> Result<Vec<u32>, AssemblerError>
 where
     R: BufRead,
 {
@@ -215,6 +215,29 @@ where
             pc += 4;
         }
         buf.clear();
+    }
+
+    Ok(prog)
+}
+
+/// Assemble a full program of newline-separated instructions.
+pub fn assemble_program(program: &str) -> Result<Vec<u32>, AssemblerError>
+{
+    let mut prog = Vec::new();
+    let mut labels = HashMap::new();
+    let mut pc: u32 = 0;
+
+    for line in program.split("\n") {
+        let ir = assemble_ir(line, &mut labels, pc);
+
+        if let Err(why) = ir {
+            return Err(why);
+        }
+
+        if let Some(i) = ir.unwrap() {
+            prog.push(i);
+            pc += 4;
+        }
     }
 
     Ok(prog)
