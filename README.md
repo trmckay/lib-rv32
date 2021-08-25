@@ -8,11 +8,11 @@
 lib-rv32 is a collection of Rust libraries for emulating, learning, and assembling 32-bit RISC-V
 integer ISAs.
 
-- [lib_rv32_isa](https://crates.io/crates/lib_rv32_isa): library for ISA simulation
-- [lib_rv32_mcu](https://crates.io/crates/lib_rv32_mcu): reference implemenation of an MCU used in conjunction with lib_rv32_isa
-- [lib_rv32_asm](https://crates.io/crates/lib_rv32_asm): library for assembling RISC-V programs
-- [lib_rv32_cli](https://crates.io/crates/lib_rv32_cli): CLI tool exposing the libraries
-
+- [lib-rv32-isa](https://crates.io/crates/lib-rv32-isa): library for ISA simulation
+- [lib-rv32-mcu](https://crates.io/crates/lib-rv32-mcu): reference implemenation of an MCU used in conjunction with lib_rv32_isa
+- [lib-rv32-asm](https://crates.io/crates/lib-rv32-asm): library for assembling RISC-V programs
+- [lib-rv32-cli](https://crates.io/crates/lib-rv32-cli): CLI tool exposing the libraries
+- [lib-rv32-wasm]: An webapp using the library's WASM bindings.
 
 ---
 
@@ -21,10 +21,10 @@ integer ISAs.
 ### ISA simulator
 
 This library can execute instructions against any memory and register file that implements
-the required primitives in the traits `lib_rv32::traits::{Memory, RegisterFile}`. This is to
+the required primitives in the traits `lib_rv32_common::traits::{Memory, RegisterFile}`. This is to
 encourage usage with whatever frontend you desire.
 
-However, reference implementations are provided in `lib_rv32::mcu`. The library provides
+However, reference implementations are provided in `lib_rv32_mcu::*`. The library provides
 functions to read from the memory, registers, and step a single instruction. Since, the
 user decides when to call these functions, these will probably fit most use-cases.
 
@@ -39,7 +39,8 @@ This crate can be used to assemble simple RISC-V assembly programs. The main fun
 by this library are:
 
 - `assemble_ir`: assemble an instruction `&str` to a `u32`
-- `assemble_buf`: assemble a `BufRead` to a `Vec<u32>`
+- `assemble_program`: assemble a program `&str` to a `Vec<u32>`
+- `assemble_program_buf`: assemble a `BufRead` to a `Vec<u32>`
 
 
 ## CLI
