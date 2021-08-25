@@ -1,0 +1,11 @@
+[package]
+name = "lib-rv32-wasm"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+lib-rv32-asm = { path = "../assembler" }
+lib-rv32-isa = { path = "../isa-sim" }
+lib-rv32-mcu = { path = "../mcu" }
+serde = { version = "1.0", features = ["derive"] }
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
