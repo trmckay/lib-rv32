@@ -12,7 +12,7 @@ integer ISAs.
 - [lib-rv32-mcu](https://crates.io/crates/lib-rv32-mcu): reference implemenation of an MCU used in conjunction with lib_rv32_isa
 - [lib-rv32-asm](https://crates.io/crates/lib-rv32-asm): library for assembling RISC-V programs
 - [lib-rv32-cli](https://crates.io/crates/lib-rv32-cli): CLI tool exposing the libraries
-- [lib-rv32-wasm]: An webapp using the library's WASM bindings.
+- [lib-rv32-wasm](https://rvwasm.trmckay.com): An webapp using the library's WASM bindings.
 
 ---
 
