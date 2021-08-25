@@ -1,3 +1,5 @@
+use serde::{Serialize, Deserialize};
+
 /// Contains reference `Memory` struct.
 mod memory;
 
@@ -18,7 +20,7 @@ pub use register_file::*;
 
 /// Reference implementation of an MCU. Contains a PC,
 /// register file, and memory.
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Mcu {
     pub pc: u32,
     pub mem: Memory,

@@ -1,12 +1,13 @@
 use std::{fs, path::Path};
 
 use log::info;
+use serde::{Serialize, Deserialize};
 
 pub use lib_rv32_isa::traits::Memory as MemoryTrait;
 use lib_rv32_isa::{common::bit_slice, RiscvError};
 
 /// Heap allocated, little-endian implementation of memory.
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Memory {
     pub size: usize,
     mem: Vec<u8>,

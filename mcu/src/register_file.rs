@@ -1,10 +1,11 @@
 use log::info;
+use serde::{Serialize, Deserialize};
 
 pub use lib_rv32_isa::traits::RegisterFile as RegisterFileTrait;
 use lib_rv32_isa::{common::constants::*, RiscvError};
 
 /// Heap allocated implementation of a register file.
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 pub struct RegisterFile {
     registers: Vec<u32>,
 }
