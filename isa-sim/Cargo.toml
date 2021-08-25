@@ -1,0 +1,19 @@
+[package]
+name = "lib-rv32-isa"
+description = "A library and CLI tool for emulating, testing, and learning RISC-V."
+keywords = ["riscv", "testing", "simulator", "emulator"]
+authors = ["Trevor McKay <tm@trmckay.com>"]
+homepage = "https://github.com/trmckay/lib-rv32"
+repository = "https://github.com/trmckay/lib-rv32"
+version = "0.2.0"
+edition = "2018"
+license = "MIT"
+readme = "../README.md"
+
+[lib]
+name = "lib_rv32_isa"
+path = "src/lib.rs"
+
+[dependencies]
+lib-rv32-common = "0.2.*"
+log = "0.4.*"

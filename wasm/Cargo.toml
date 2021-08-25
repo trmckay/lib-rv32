@@ -1,0 +1,15 @@
+[package]
+name = "lib-rv32-wasm"
+version = "0.2.0"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+lib-rv32-asm = "0.2.*"
+lib-rv32-isa = "0.2.*"
+lib-rv32-mcu = "0.2.*"
+lib-rv32-common = "0.2.*"
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+log = "0.4.*"

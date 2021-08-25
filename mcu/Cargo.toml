@@ -1,0 +1,26 @@
+[package]
+name = "lib-rv32-mcu"
+description = "A library and CLI tool for emulating, testing, and learning RISC-V."
+keywords = ["riscv", "testing", "simulator", "emulator"]
+authors = ["Trevor McKay <tm@trmckay.com>"]
+homepage = "https://github.com/trmckay/lib-rv32"
+repository = "https://github.com/trmckay/lib-rv32"
+version = "0.2.1"
+edition = "2018"
+license = "MIT"
+readme = "../README.md"
+exclude = ["build.rs", "build-tests.sh", "programs"]
+
+[lib]
+name = "lib_rv32_mcu"
+path = "src/lib.rs"
+
+[dependencies]
+log = "0.4.*"
+lib-rv32-isa = "0.2.0"
+serde = { version = "1.0", features = ["derive"] }
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+
+[dev-dependencies]
+serde_json = "1.0.*"
+glob = "0.3.*"

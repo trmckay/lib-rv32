@@ -16,5 +16,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build
-      run: cargo build --release
+    - name: Install pre-requisites
+      run: rustup target add wasm32-unknown-unknown
+    - name: Check
+      run: make check
