@@ -1,22 +1,31 @@
 SHELL = bash
+RUST_FILES = $(shell find . -type f -name '*.rs')
 
-build:
+build: $(RUST_FILES)
 	cargo build --verbose
 
-test:
+test: $(RUST_FILES)
 	cargo test --verbose
 
-releae:
+release: $(RUST_FILES)
 	cargo build --verbose --release
 
 clean:
-	rm -rf **/target
+	(cd isa-sim && cargo clean)
+	(cd mcu && cargo clean)
+	(cd assembler && cargo clean)
+	(cd wasm && cargo clean)
+	(cd common && cargo clean)
 	rm -f mcu/programs/**/{*.elf,*.bin,dump.txt}
+	rm -rf wasm/pkg
 
-format:
+format: $(RUST_FILES)
 	rustfmt **/*.rs
 
-check:
+wasm: $(RUST_FILES)
+	(cd wasm && wasm-pack build)
+
+check: $(RUST_FILES)
 	rustfmt **/*.rs --check
 	cargo check --release
 	(cd isa-sim && cargo check --release --target wasm32-unknown-unknown)
