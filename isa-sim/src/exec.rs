@@ -52,7 +52,7 @@ where
     let ir = ir.unwrap();
     let opcode = decode_opcode!(ir) as u8;
 
-    info!("[{:04x}]  {:08x}  |  ", pc, ir);
+    info!("[{:04x}]  {:08x}", pc, ir);
 
     return match opcode {
         OPCODE_LUI => {
@@ -60,11 +60,8 @@ where
             let imm = decode_u_imm!(ir);
 
             info!(
-                "{:25} |  ",
-                format!(
-                    "{:6} {}, 0x{:x} ({})",
-                    "lui", REG_NAMES[rd as usize], imm, imm as i32
-                )
+                "{:6} {}, 0x{:x} ({})",
+                "lui", REG_NAMES[rd as usize], imm, imm as i32
             );
 
             if let Err(why) = rf.write(rd, imm) {
@@ -81,13 +78,10 @@ where
             let imm = decode_u_imm!(ir);
 
             info!(
-                "{:25} |  ",
-                format!(
-                    "{:6} {}, 0x{:x}",
-                    "auipc",
-                    REG_NAMES[rd as usize],
-                    (imm >> 12)
-                )
+                "{:6} {}, 0x{:x}",
+                "auipc",
+                REG_NAMES[rd as usize],
+                (imm >> 12)
             );
 
             if let Err(why) = rf.write(rd, *pc + imm) {
@@ -104,18 +98,15 @@ where
             let imm = decode_j_imm!(ir);
 
             info!(
-                "{:25} |  ",
-                format!(
-                    "{:6} {}, 0x{:x} ({})",
-                    "jal", REG_NAMES[rd as usize], imm, imm as i32
-                )
+                "{:6} {}, 0x{:x} ({})",
+                "jal", REG_NAMES[rd as usize], imm, imm as i32
             );
 
             if let Err(why) = rf.write(rd, *pc + 4) {
                 return Err(why);
             }
             *pc = pc.wrapping_add(imm);
-            info!("pc <- 0x{:x}; ", pc);
+            info!("pc <- 0x{:x}", pc);
 
             info!("\n");
             Ok(())
@@ -127,11 +118,8 @@ where
             let imm = decode_i_imm!(ir);
 
             info!(
-                "{:25} |  ",
-                format!(
-                    "{:6} {}, ({}){}",
-                    "jalr", REG_NAMES[rd as usize], imm as i32, REG_NAMES[rs1 as usize]
-                )
+                "{:6} {}, ({}){}",
+                "jalr", REG_NAMES[rd as usize], imm as i32, REG_NAMES[rs1 as usize]
             );
 
             let rs1_data = match rf.read(rs1) {
@@ -143,7 +131,7 @@ where
             }
 
             *pc = rs1_data.wrapping_add(imm);
-            info!("pc <- 0x{:x}; ", pc);
+            info!("pc <- 0x{:x}", pc);
 
             info!("\n");
             Ok(())
@@ -173,32 +161,29 @@ where
             let imm = b_imm!(ir);
 
             info!(
-                "{:25} |  {}",
-                format!(
-                    "{:6} {}, {}, {}",
-                    match func3 {
-                        FUNC3_BEQ => "beq",
-                        FUNC3_BNE => "bne",
-                        FUNC3_BLT => "blt",
-                        FUNC3_BGE => "bge",
-                        FUNC3_BLTU => "bltu",
-                        FUNC3_BGEU => "bgeu",
-                        _ => "",
-                    },
-                    REG_NAMES[rs1 as usize],
-                    REG_NAMES[rs2 as usize],
-                    imm as i32,
-                ),
-                if taken {
-                    "branch taken; "
-                } else {
-                    "branch not taken; "
-                }
+                "{:6} {}, {}, {}",
+                match func3 {
+                    FUNC3_BEQ => "beq",
+                    FUNC3_BNE => "bne",
+                    FUNC3_BLT => "blt",
+                    FUNC3_BGE => "bge",
+                    FUNC3_BLTU => "bltu",
+                    FUNC3_BGEU => "bgeu",
+                    _ => "",
+                },
+                REG_NAMES[rs1 as usize],
+                REG_NAMES[rs2 as usize],
+                imm as i32,
             );
+            if taken {
+                info!("branch taken");
+            } else {
+                info!("branch not taken");
+            }
 
             if taken {
                 *pc = pc.wrapping_add(imm);
-                info!("pc <- 0x{:x}; ", pc);
+                info!("pc <- 0x{:x}", pc);
             } else {
                 *pc += 4;
             }
@@ -219,21 +204,18 @@ where
             let func3 = decode_func3!(ir);
 
             info!(
-                "{:25} |  ",
-                format!(
-                    "{:6} {}, {}({})",
-                    match func3 {
-                        FUNC3_LB => "lb",
-                        FUNC3_LH => "lh",
-                        FUNC3_LBU => "lbu",
-                        FUNC3_LHU => "lhu",
-                        FUNC3_LW => "lw",
-                        _ => "",
-                    },
-                    REG_NAMES[rd as usize],
-                    imm as i32,
-                    REG_NAMES[rs1 as usize]
-                )
+                "{:6} {}, {}({})",
+                match func3 {
+                    FUNC3_LB => "lb",
+                    FUNC3_LH => "lh",
+                    FUNC3_LBU => "lbu",
+                    FUNC3_LHU => "lhu",
+                    FUNC3_LW => "lw",
+                    _ => "",
+                },
+                REG_NAMES[rd as usize],
+                imm as i32,
+                REG_NAMES[rs1 as usize]
             );
 
             if let Err(why) = rf.write(
@@ -273,19 +255,16 @@ where
             let func3 = decode_func3!(ir);
 
             info!(
-                "{:25} |  ",
-                format!(
-                    "{:6} {}, {}({})",
-                    match func3 {
-                        FUNC3_SB => "sb",
-                        FUNC3_SH => "sh",
-                        FUNC3_SW => "sw",
-                        _ => "",
-                    },
-                    REG_NAMES[rs2 as usize],
-                    imm as i32,
-                    REG_NAMES[rs1 as usize]
-                )
+                "{:6} {}, {}({})",
+                match func3 {
+                    FUNC3_SB => "sb",
+                    FUNC3_SH => "sh",
+                    FUNC3_SW => "sw",
+                    _ => "",
+                },
+                REG_NAMES[rs2 as usize],
+                imm as i32,
+                REG_NAMES[rs1 as usize]
             );
 
             let addr = match rf.read(rs1) {
@@ -388,23 +367,20 @@ where
             };
 
             info!(
-                "{:25} |  ",
-                format!(
-                    "{:6} {}, {}, {}",
-                    ir_name.to_owned()
-                        + match opcode {
-                            OPCODE_ARITHMETIC => "",
-                            OPCODE_ARITHMETIC_IMM => "i",
-                            _ => "?",
-                        },
-                    REG_NAMES[rd as usize],
-                    REG_NAMES[rs1 as usize],
-                    match opcode {
-                        OPCODE_ARITHMETIC => String::from(REG_NAMES[decode_rs2!(ir) as usize]),
-                        OPCODE_ARITHMETIC_IMM => (decode_i_imm!(ir) as i32).to_string(),
-                        _ => String::from("?"),
-                    }
-                )
+                "{:6} {}, {}, {}",
+                ir_name.to_owned()
+                    + match opcode {
+                        OPCODE_ARITHMETIC => "",
+                        OPCODE_ARITHMETIC_IMM => "i",
+                        _ => "?",
+                    },
+                REG_NAMES[rd as usize],
+                REG_NAMES[rs1 as usize],
+                match opcode {
+                    OPCODE_ARITHMETIC => String::from(REG_NAMES[decode_rs2!(ir) as usize]),
+                    OPCODE_ARITHMETIC_IMM => (decode_i_imm!(ir) as i32).to_string(),
+                    _ => String::from("?"),
+                }
             );
 
             if let Err(why) = rf.write(decode_rd!(ir), bi_operator(lhs, rhs)) {

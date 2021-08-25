@@ -35,6 +35,7 @@ pub fn assemble_ir(
     labels: &mut HashMap<String, u32>,
     pc: u32,
 ) -> Result<Option<u32>, AssemblerError> {
+    let mut msg = String::new();
     let mut ir: u32 = 0;
 
     let mut tokens: Vec<String> = tokenize!(ir_string);
@@ -55,7 +56,7 @@ pub fn assemble_ir(
         return Ok(None);
     }
 
-    info!("{:24} -> [{:02x}] ", ir_string, pc);
+    msg += &format!("{:24} -> [{:02x}] ", ir_string, pc);
 
     let op = &tokens[0][..];
     let opcode = match_opcode(op);
@@ -177,7 +178,9 @@ pub fn assemble_ir(
         InstructionFormat::Rtype => (),
     }
 
-    info!("{:08x}\n", ir);
+    msg += &format!("{:08x}\n", ir);
+    info!("{}", msg);
+
     Ok(Some(ir))
 }
 
@@ -221,8 +224,7 @@ where
 }
 
 /// Assemble a full program of newline-separated instructions.
-pub fn assemble_program(program: &str) -> Result<Vec<u32>, AssemblerError>
-{
+pub fn assemble_program(program: &str) -> Result<Vec<u32>, AssemblerError> {
     let mut prog = Vec::new();
     let mut labels = HashMap::new();
     let mut pc: u32 = 0;

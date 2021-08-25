@@ -1,5 +1,5 @@
 use log::info;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 pub use lib_rv32_isa::traits::RegisterFile as RegisterFileTrait;
 use lib_rv32_isa::{common::constants::*, RiscvError};

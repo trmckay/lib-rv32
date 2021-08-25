@@ -1,7 +1,7 @@
 use std::{fs, path::Path};
 
 use log::info;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 pub use lib_rv32_isa::traits::Memory as MemoryTrait;
 use lib_rv32_isa::{common::bit_slice, RiscvError};
@@ -43,12 +43,12 @@ impl Memory {
 
         if log {
             match size {
-                1 => info!("(byte *)0x{:08x} = 0x{:x} ({}); ", base, data, data as i32),
+                1 => info!("(byte *)0x{:08x} = 0x{:x} ({})", base, data, data as i32),
                 2 => info!(
-                    "(half-word *)0x{:08x} = 0x{:x} ({}); ",
+                    "(half-word *)0x{:08x} = 0x{:x} ({})",
                     base, data, data as i32
                 ),
-                4 => info!("(word *)0x{:08x} = 0x{:x} ({}); ", base, data, data as i32),
+                4 => info!("(word *)0x{:08x} = 0x{:x} ({})", base, data, data as i32),
                 _ => (),
             }
         }
@@ -60,12 +60,12 @@ impl Memory {
     fn write(&mut self, base: usize, data: u32, size: usize, log: bool) -> Result<(), RiscvError> {
         if log {
             match size {
-                1 => info!("(byte *)0x{:08x} <- 0x{:x} ({}); ", base, data, data as i32),
+                1 => info!("(byte *)0x{:08x} <- 0x{:x} ({})", base, data, data as i32),
                 2 => info!(
-                    "(half-word *)0x{:08x} <- 0x{:x} ({}); ",
+                    "(half-word *)0x{:08x} <- 0x{:x} ({})",
                     base, data, data as i32
                 ),
-                4 => info!("(word *)0x{:08x} <- 0x{:x} ({}); ", base, data, data as i32),
+                4 => info!("(word *)0x{:08x} <- 0x{:x} ({})", base, data, data as i32),
                 _ => (),
             }
         }
@@ -92,6 +92,16 @@ impl Memory {
                 if let Err(why) = self.write(word_addr * 4 + byte_offset, *byte as u32, 1, false) {
                     return Err(why);
                 }
+            }
+        }
+        Ok(())
+    }
+
+    /// Program the memory from a vector of words.
+    pub fn program_words(&mut self, words: &[u32]) -> Result<(), RiscvError> {
+        for (addr, word) in words.iter().enumerate() {
+            if let Err(why) = self.write(addr * 4, *word as u32, 4, false) {
+                return Err(why);
             }
         }
         Ok(())
