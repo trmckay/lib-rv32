@@ -3,9 +3,15 @@ name = "lib-rv32-wasm"
 version = "0.1.0"
 edition = "2018"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 lib-rv32-asm = { path = "../assembler" }
 lib-rv32-isa = { path = "../isa-sim" }
 lib-rv32-mcu = { path = "../mcu" }
+lib-rv32-common = { path = "../common" }
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.*"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+log = "0.4.*"
