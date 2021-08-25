@@ -27,7 +27,7 @@ impl RegisterFileTrait for RegisterFile {
         }
 
         info!(
-            "{} <- 0x{:x} ({}); ",
+            "{} <- 0x{:x} ({})",
             REG_NAMES[num as usize], data, data as i32
         );
 

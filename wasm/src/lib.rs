@@ -1,5 +1,4 @@
 use log::{info, LevelFilter};
-use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
 use lib_rv32_asm::assemble_program;
@@ -13,17 +12,18 @@ use logger::*;
 pub const DEFAULT_MEM_SIZE: usize = 1024;
 
 static LOGGER: Logger = Logger;
+static mut CONSOLE_TEXT: String = String::new();
+
+#[wasm_bindgen]
+pub fn get_logs() -> String {
+    // Not thread-safe. ¯\_(ツ)_/¯
+    unsafe { CONSOLE_TEXT.clone() }
+}
 
 #[wasm_bindgen]
 pub struct State {
     mcu: Mcu,
     text_size: usize,
-}
-
-#[wasm_bindgen]
-#[derive(Serialize, Deserialize)]
-pub struct Program {
-    asm: String,
 }
 
 #[wasm_bindgen]
@@ -36,7 +36,7 @@ impl State {
 
         let mcu = Mcu::new(DEFAULT_MEM_SIZE);
         info!(
-            "Initialized RISC-V rv32i MCU with {}k memory.",
+            "Initialized RISC-V rv32i MCU with {}k memory.\n",
             mcu.mem.size / 1024
         );
 
@@ -53,8 +53,7 @@ impl State {
             info!("Assembler error: {:?}", words);
             return;
         } else {
-            info!("Successfully assembled program.");
-            info!(" ");
+            info!("Successfully assembled program.\n");
             let words = words.unwrap();
             self.mcu.mem.program_words(&words).unwrap();
             self.text_size = words.len() * 4;
@@ -67,9 +66,10 @@ impl State {
                 info!("MCU runtime error: {:?}", why);
                 return;
             }
+            info!("");
         }
 
-        info!("Program complete.");
+        info!("\nProgram complete.");
     }
 
     pub fn get_text(&self) -> String {

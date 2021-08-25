@@ -69,7 +69,6 @@ where
             }
             *pc += 4;
 
-            info!("\n");
             Ok(())
         }
 
@@ -89,7 +88,6 @@ where
             }
             *pc += 4;
 
-            info!("\n");
             Ok(())
         }
 
@@ -108,7 +106,6 @@ where
             *pc = pc.wrapping_add(imm);
             info!("pc <- 0x{:x}", pc);
 
-            info!("\n");
             Ok(())
         }
 
@@ -133,7 +130,6 @@ where
             *pc = rs1_data.wrapping_add(imm);
             info!("pc <- 0x{:x}", pc);
 
-            info!("\n");
             Ok(())
         }
 
@@ -188,7 +184,6 @@ where
                 *pc += 4;
             }
 
-            info!("\n");
             Ok(())
         }
 
@@ -244,7 +239,6 @@ where
             }
             *pc += 4;
 
-            info!("\n");
             Ok(())
         }
 
@@ -286,7 +280,6 @@ where
             }
             *pc += 4;
 
-            info!("\n");
             Ok(())
         }
 
@@ -388,7 +381,6 @@ where
             }
             *pc += 4;
 
-            info!("\n");
             Ok(())
         }
         _ => Err(RiscvError::InvalidOpcodeError(ir, decode_opcode!(ir))),

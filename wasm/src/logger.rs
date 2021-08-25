@@ -17,6 +17,10 @@ impl log::Log for Logger {
     fn log(&self, record: &Record) {
         if self.enabled(record.metadata()) {
             log(&format!("{}", record.args()));
+            // Not thread-safe.
+            unsafe {
+                crate::CONSOLE_TEXT += &format!("{}\n", record.args());
+            }
         }
     }
 

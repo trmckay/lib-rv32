@@ -56,7 +56,7 @@ pub fn assemble_ir(
         return Ok(None);
     }
 
-    msg += &format!("{:24} -> [{:02x}] ", ir_string, pc);
+    msg += &format!("{:18} -> [{:02x}] ", ir_string, pc);
 
     let op = &tokens[0][..];
     let opcode = match_opcode(op);
@@ -178,7 +178,7 @@ pub fn assemble_ir(
         InstructionFormat::Rtype => (),
     }
 
-    msg += &format!("{:08x}\n", ir);
+    msg += &format!("{:08x}", ir);
     info!("{}", msg);
 
     Ok(Some(ir))
