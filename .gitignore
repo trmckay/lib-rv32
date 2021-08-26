@@ -12,3 +12,6 @@
 /wasm/pkg
 *.tar.gz
 wasm/node/node_modules
+web-app/node/dist
+web-app/node/node_modules
+web-app/node/package-lock.json

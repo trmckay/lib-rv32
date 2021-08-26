@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  web:
+    container_name: "lib-rv32-app"
+    image: nginx
+    volumes:
+      - ./node/dist:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+    environment:
+     - NGINX_HOST=localhost
+     - NGINX_PORT=80
