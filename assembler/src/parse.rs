@@ -95,7 +95,7 @@ macro_rules! match_func3 {
             "sra" | "srai" | "srl" | "srli" => FUNC3_SR,
             "or" | "ori" => FUNC3_OR,
             "and" | "andi" => FUNC3_AND,
-            _ => unreachable!(),
+            _ => 0,
         }
     };
 }

@@ -49,6 +49,6 @@ format:
 	shopt -s globstar && rustfmt **/*.rs
 
 ci: clean
-	docker build -t lib-rv32-test . -f ci/Dockerfile
+	docker build -t lib-rv32-test .
 	docker run -it --rm lib-rv32-test .
 	docker rmi lib-rv32-test
