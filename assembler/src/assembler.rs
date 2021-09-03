@@ -1,8 +1,5 @@
-use std::collections::HashMap;
-#[cfg(not(target_arch = "wasm32"))]
-use std::io::prelude::*;
-
 use log::info;
+use std::collections::HashMap;
 
 use lib_rv32_common::constants::*;
 
@@ -21,6 +18,28 @@ enum InstructionFormat {
     Btype,
 }
 
+pub fn parse_labels(program: &str) -> HashMap<String, u32> {
+    let mut pc: u32 = 0;
+    let mut labels = HashMap::new();
+
+    for line in program.split('\n') {
+        let tokens: Vec<String> = tokenize!(line);
+
+        if !tokens.is_empty() {
+            if tokens[0].ends_with(':') {
+                labels.insert(tokens[0].strip_suffix(':').unwrap().to_owned(), pc);
+
+                if tokens.len() > 1 {
+                    pc += 4;
+                }
+            } else {
+                pc += 4;
+            }
+        }
+    }
+    labels
+}
+
 /// Assemble a single instruction.
 ///
 /// Parameters:
@@ -32,7 +51,7 @@ enum InstructionFormat {
 ///     `Result<Option<u32>>`: The assembled binary instruction, an error, or nothing.
 pub fn assemble_ir(
     ir_string: &str,
-    labels: &mut HashMap<String, u32>,
+    labels: &HashMap<String, u32>,
     pc: u32,
 ) -> Result<Option<u32>, AssemblerError> {
     let mut msg = String::new();
@@ -46,9 +65,8 @@ pub fn assemble_ir(
         return Err(AssemblerError::TooManyTokensError);
     }
 
-    // Add and remove leading label.
+    // Strip leading label.
     if tokens[0].ends_with(':') {
-        labels.insert(tokens[0].strip_suffix(':').unwrap().to_owned(), pc);
         tokens.remove(0);
     }
 
@@ -184,53 +202,15 @@ pub fn assemble_ir(
     Ok(Some(ir))
 }
 
-/// Assemble a `BufRead` down to a vector of words. The input should contain
-/// the entire program.
-#[cfg(not(target_arch = "wasm32"))]
-pub fn assemble_program_buf<R>(reader: &mut R) -> Result<Vec<u32>, AssemblerError>
-where
-    R: BufRead,
-{
-    let mut prog = Vec::new();
-    let mut buf = String::new();
-    let mut labels = HashMap::new();
-    let mut pc: u32 = 0;
-
-    loop {
-        let bytes_rd = reader.read_line(&mut buf);
-
-        if bytes_rd.is_err() {
-            return Err(AssemblerError::IOError);
-        }
-
-        if bytes_rd.unwrap() == 0 {
-            break;
-        }
-
-        let ir = assemble_ir(buf.trim_end(), &mut labels, pc);
-
-        if let Err(why) = ir {
-            return Err(why);
-        }
-
-        if let Some(i) = ir.unwrap() {
-            prog.push(i);
-            pc += 4;
-        }
-        buf.clear();
-    }
-
-    Ok(prog)
-}
-
 /// Assemble a full program of newline-separated instructions.
 pub fn assemble_program(program: &str) -> Result<Vec<u32>, AssemblerError> {
     let mut prog = Vec::new();
-    let mut labels = HashMap::new();
     let mut pc: u32 = 0;
 
-    for line in program.split("\n") {
-        let ir = assemble_ir(line, &mut labels, pc);
+    let labels = parse_labels(program);
+
+    for line in program.split('\n') {
+        let ir = assemble_ir(line, &labels, pc);
 
         if let Err(why) = ir {
             return Err(why);
