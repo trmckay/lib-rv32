@@ -68,6 +68,128 @@ pub fn parse_imm(s: &str, labels: &HashMap<String, u32>, pc: u32) -> Result<u32,
     }
 }
 
+/// Create a `Vec<String>` out of `&str`s.
+macro_rules! to_owned_vec {
+    ($($x:expr),+ $(,)?) => (
+        vec!($($x.to_owned()),+)
+    )
+}
+
+/// Helper function to break up an LI into an LUI and/or an ADDI.
+fn generate_li(ir_tokens: &[String]) -> Result<Vec<Vec<String>>, AssemblerError> {
+    let mut instructions: Vec<Vec<String>> = Vec::new();
+
+    let immediate = parse_int!(i32, ir_tokens[2]);
+    if immediate.is_err() {
+        return Err(AssemblerError::InvalidImmediateError);
+    }
+    let immediate = immediate.unwrap();
+
+    // Immediate fits in 12 bits.
+    if (immediate as u32) <= 0xFFF {
+        // We can just ADDI to x0.
+        instructions.push(to_owned_vec![
+            "addi",
+            &ir_tokens[1],
+            "x0",
+            &format!("{:x}", immediate)
+        ]);
+    } else {
+        let lower_ten = (immediate & ((0b1 << 11) - 1)) >> 10;
+        let upper_twenty_two = (immediate & ((0b1 << 23) - 1)) >> 22;
+
+        // Add upper bits by doing a LUI with the upper 22 bits.
+        instructions.push(to_owned_vec![
+            "lui",
+            &ir_tokens[1],
+            &format!("{:x}", upper_twenty_two)
+        ]);
+        if lower_ten != 0 {
+            // Add lower bits by doing an ADDI to x0 with the lower 10 bits.
+            instructions.push(to_owned_vec![
+                "addi",
+                &ir_tokens[1],
+                "x0",
+                &format!("{:x}", lower_ten)
+            ]);
+        }
+    }
+
+    Ok(instructions)
+}
+
+/// Take an instruction as tokens and return one or more vectors of tokens representing a base-instruction, or none
+/// if it is not a psuedo-instruction. May raise an assembler error if an immediate needs to be parsed and fails.
+pub fn transform_psuedo_ir(ir_tokens: &[String]) -> Result<Vec<Vec<String>>, AssemblerError> {
+    let mut instructions: Vec<Vec<String>> = Vec::new();
+
+    match &(*ir_tokens[0]) {
+        "nop" => instructions.push(to_owned_vec!["addi", "x0", "x0", "0"]),
+        "li" => {
+            let transformed_ir = generate_li(ir_tokens);
+            if let Err(why) = transformed_ir {
+                return Err(why);
+            }
+            for t in transformed_ir.unwrap() {
+                instructions.push(t);
+            }
+        }
+        "mv" => instructions.push(to_owned_vec!["add", &ir_tokens[1], &ir_tokens[2], "x0"]),
+        "not" => instructions.push(to_owned_vec!["xori", &ir_tokens[1], &ir_tokens[2], "-1"]),
+        "neg" => instructions.push(to_owned_vec!["sub", &ir_tokens[1], "x0", &ir_tokens[2]]),
+        "seqz" => instructions.push(to_owned_vec!["sltiu", &ir_tokens[1], &ir_tokens[2], "1"]),
+        "snez" => instructions.push(to_owned_vec!["stlu", &ir_tokens[1], "x0", &ir_tokens[2]]),
+        "sltz" => instructions.push(to_owned_vec!["slt", &ir_tokens[1], &ir_tokens[2], "x0"]),
+        "sgtz" => instructions.push(to_owned_vec!["slt", &ir_tokens[1], "x0", &ir_tokens[2]]),
+        "beqz" => instructions.push(to_owned_vec!["beq", &ir_tokens[1], "x0", &ir_tokens[2]]),
+        "bnez" => instructions.push(to_owned_vec!["bne", &ir_tokens[1], "x0", &ir_tokens[2]]),
+        "blez" => instructions.push(to_owned_vec!["bge", "x0", &ir_tokens[1], &ir_tokens[2]]),
+        "bgez" => instructions.push(to_owned_vec!["bge", &ir_tokens[1], "x0", &ir_tokens[2]]),
+        "bltz" => instructions.push(to_owned_vec!["blt", &ir_tokens[1], "x0", &ir_tokens[2]]),
+        "bgtz" => instructions.push(to_owned_vec!["blt", "x0", &ir_tokens[1], &ir_tokens[2]]),
+        "bgt" => instructions.push(to_owned_vec![
+            "blt",
+            &ir_tokens[2],
+            &ir_tokens[1],
+            &ir_tokens[3]
+        ]),
+        "ble" => instructions.push(to_owned_vec![
+            "bge",
+            &ir_tokens[2],
+            &ir_tokens[1],
+            &ir_tokens[3]
+        ]),
+        "j" => instructions.push(to_owned_vec!["jal", "x0", &ir_tokens[1]]),
+        // TODO: support extended call
+        "jal" | "call" => {
+            if ir_tokens.len() == 2 {
+                instructions.push(to_owned_vec!["jal", "ra", &ir_tokens[1]]);
+            } else {
+                instructions.push(ir_tokens.to_owned())
+            }
+        }
+        "tail" => {
+            instructions.push(to_owned_vec!["jal", "x0", &ir_tokens[1]]);
+        }
+        "jr" => instructions.push(to_owned_vec!["jalr", "x0", &ir_tokens[1], "0"]),
+        "jalr" => {
+            if ir_tokens.len() == 2 {
+                instructions.push(to_owned_vec!["jalr", "ra", &ir_tokens[1], "0"]);
+            } else {
+                instructions.push(ir_tokens.to_owned())
+            }
+        }
+        "ret" => instructions.push(to_owned_vec!["jalr", "x0", "ra", "0"]),
+        _ => instructions.push(ir_tokens.to_owned()),
+    }
+
+    if !instructions.is_empty() {
+        Ok(instructions)
+    } else {
+        Ok(vec![])
+    }
+}
+
 /// Match an operation to the correct func3.
 #[macro_export]
 macro_rules! match_func3 {
