@@ -124,8 +124,13 @@ fn test_assemble_with_forward_labels() {
 #[test]
 fn test_assemble_li() {
     let labels: HashMap<String, u32> = HashMap::new();
+
     let psuedo_ir = "li t0, 5";
+    let psuedo_ir_tokens: Vec<String> = tokenize!(psuedo_ir);
+
     let base_ir = "addi t0, x0, 5";
+
+    print!("{:?}", transform_psuedo_ir(&psuedo_ir_tokens).unwrap());
 
     assert_eq!(
         assemble_ir(base_ir, &labels, &mut 0).unwrap()[0],
@@ -134,10 +139,45 @@ fn test_assemble_li() {
 }
 
 #[test]
+fn test_assemble_li_large() {
+    let labels: HashMap<String, u32> = HashMap::new();
+
+    let psuedo_ir = "li t0, 0xFFFF";
+    let psuedo_ir_tokens: Vec<String> = tokenize!(psuedo_ir);
+
+    let base_ir_1 = "lui t0, 0xF";
+    let base_ir_2 = "addi t0, t0, 0xFFF";
+
+    print!("{:?}", transform_psuedo_ir(&psuedo_ir_tokens).unwrap());
+
+    assert_eq!(
+        assemble_ir(base_ir_1, &labels, &mut 0).unwrap()[0],
+        assemble_ir(psuedo_ir, &labels, &mut 0).unwrap()[0]
+    );
+
+    assert_eq!(
+        assemble_ir(base_ir_2, &labels, &mut 0).unwrap()[0],
+        assemble_ir(psuedo_ir, &labels, &mut 0).unwrap()[1]
+    );
+}
+
+#[test]
 fn test_assemble_mv() {
     let labels: HashMap<String, u32> = HashMap::new();
     let psuedo_ir = "mv t0, t1";
     let base_ir = "add t0, t1, x0";
+
+    assert_eq!(
+        assemble_ir(base_ir, &labels, &mut 0).unwrap()[0],
+        assemble_ir(psuedo_ir, &labels, &mut 0).unwrap()[0]
+    );
+}
+
+#[test]
+fn test_assemble_nop() {
+    let labels: HashMap<String, u32> = HashMap::new();
+    let psuedo_ir = "nop";
+    let base_ir = "addi x0, x0, 0";
 
     assert_eq!(
         assemble_ir(base_ir, &labels, &mut 0).unwrap()[0],

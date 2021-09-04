@@ -73,8 +73,6 @@ pub fn assemble_ir(
         return Ok(vec![]);
     }
 
-    msg += &format!("{:18} -> [{:02x}] ", ir_string, *pc);
-
     let base_instructions = transform_psuedo_ir(&line_tokens);
     if let Err(why) = base_instructions {
         return Err(why);
@@ -208,7 +206,6 @@ pub fn assemble_ir(
         }
 
         msg += &format!("{:08x}", ir);
-        info!("{}", msg);
 
         binaries.push(ir);
         *pc += 4;

@@ -32,7 +32,7 @@ pub fn match_opcode(op: &str) -> Result<u8, AssemblerError> {
         "beq" | "bne" | "blt" | "bge" | "bgeu" => OPCODE_BRANCH,
         "lb" | "lbu" | "lh" | "lhu" | "lw" => OPCODE_LOAD,
         "sb" | "sh" | "sw" => OPCODE_STORE,
-        _ => return Err(AssemblerError::InvalidOperationError),
+        _ => return Err(AssemblerError::InvalidOperationError(op.to_string())),
     };
     Ok(opcode)
 }
@@ -42,12 +42,12 @@ pub fn match_register(reg: &str) -> Result<u8, AssemblerError> {
     if reg.starts_with('x') {
         match reg.strip_prefix('x').unwrap().parse() {
             Ok(n) => Ok(n),
-            Err(_) => Err(AssemblerError::NoSuchRegisterError),
+            Err(_) => Err(AssemblerError::NoSuchRegisterError(reg.to_string())),
         }
     } else {
         match REG_NAMES.iter().position(|e| *e == reg) {
             Some(n) => Ok(n as u8),
-            None => Err(AssemblerError::NoSuchRegisterError),
+            None => Err(AssemblerError::NoSuchRegisterError(reg.to_string())),
         }
     }
 }
@@ -61,7 +61,7 @@ pub fn parse_imm(s: &str, labels: &HashMap<String, u32>, pc: u32) -> Result<u32,
             if let Some(v) = label {
                 Ok((*v).wrapping_sub(pc))
             } else {
-                Err(AssemblerError::InvalidImmediateError)
+                Err(AssemblerError::InvalidImmediateError(s.to_string()))
             }
         }
         Ok(d) => Ok(d as u32),
@@ -81,7 +81,9 @@ fn generate_li(ir_tokens: &[String]) -> Result<Vec<Vec<String>>, AssemblerError>
 
     let immediate = parse_int!(i32, ir_tokens[2]);
     if immediate.is_err() {
-        return Err(AssemblerError::InvalidImmediateError);
+        return Err(AssemblerError::InvalidImmediateError(
+            ir_tokens[2].to_string(),
+        ));
     }
     let immediate = immediate.unwrap();
 
@@ -92,25 +94,25 @@ fn generate_li(ir_tokens: &[String]) -> Result<Vec<Vec<String>>, AssemblerError>
             "addi",
             &ir_tokens[1],
             "x0",
-            &format!("{:x}", immediate)
+            &format!("0x{:X}", immediate)
         ]);
     } else {
-        let lower_ten = (immediate & ((0b1 << 11) - 1)) >> 10;
-        let upper_twenty_two = (immediate & ((0b1 << 23) - 1)) >> 22;
+        let lower_twelve = immediate & 0x0000_0FFF;
+        let upper_twenty = ((immediate as u32) & 0xFFFF_F000) >> 12;
 
         // Add upper bits by doing a LUI with the upper 22 bits.
         instructions.push(to_owned_vec![
             "lui",
             &ir_tokens[1],
-            &format!("{:x}", upper_twenty_two)
+            &format!("0x{:X}", upper_twenty)
         ]);
-        if lower_ten != 0 {
+        if lower_twelve != 0 {
             // Add lower bits by doing an ADDI to x0 with the lower 10 bits.
             instructions.push(to_owned_vec![
                 "addi",
                 &ir_tokens[1],
-                "x0",
-                &format!("{:x}", lower_ten)
+                &ir_tokens[1],
+                &format!("0x{:X}", lower_twelve)
             ]);
         }
     }

@@ -1,13 +1,13 @@
 /// Enumeration of possible errors when assembling a program.
 #[derive(Debug, PartialEq)]
 pub enum AssemblerError {
-    InvalidOperationError,
-    NoSuchLabelError,
-    NoSuchRegisterError,
-    WrongOperandTypeError,
+    InvalidOperationError(String),
+    NoSuchLabelError(String),
+    NoSuchRegisterError(String),
+    WrongOperandTypeError(String),
     TooManyTokensError,
     TooFewTokensError,
-    ImmediateTooLargeError,
-    InvalidImmediateError,
+    ImmediateTooLargeError(String),
+    InvalidImmediateError(String),
     IOError,
 }
