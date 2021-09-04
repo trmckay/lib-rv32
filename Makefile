@@ -4,7 +4,7 @@ build:
 	cargo build --verbose
 
 test:
-	cargo test --verbose
+	env RUST_BACKTRACE=1 cargo test --verbose
 
 release:
 	cargo build --verbose --release
