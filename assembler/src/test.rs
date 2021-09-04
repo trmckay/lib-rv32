@@ -122,6 +122,30 @@ fn test_assemble_with_forward_labels() {
 }
 
 #[test]
+fn test_assemble_li() {
+    let labels: HashMap<String, u32> = HashMap::new();
+    let psuedo_ir = "li t0, 5";
+    let base_ir = "addi t0, x0, 5";
+
+    assert_eq!(
+        assemble_ir(base_ir, &labels, &mut 0).unwrap()[0],
+        assemble_ir(psuedo_ir, &labels, &mut 0).unwrap()[0]
+    );
+}
+
+#[test]
+fn test_assemble_mv() {
+    let labels: HashMap<String, u32> = HashMap::new();
+    let psuedo_ir = "mv t0, t1";
+    let base_ir = "add t0, t1, x0";
+
+    assert_eq!(
+        assemble_ir(base_ir, &labels, &mut 0).unwrap()[0],
+        assemble_ir(psuedo_ir, &labels, &mut 0).unwrap()[0]
+    );
+}
+
+#[test]
 fn test_parse_imm() {
     let mut labels: HashMap<String, u32> = HashMap::new();
     labels.insert("loop".to_string(), 0);
@@ -137,9 +161,7 @@ fn test_assemble_copious_commas() {
     let empty_hash: HashMap<String, u32> = HashMap::new();
     assert_eq!(
         instructions::ADDI_X5_X6_0,
-        assemble_ir("addi,, t0,,, x6,, 0,,,", &empty_hash, 0)
-            .unwrap()
-            .unwrap()
+        assemble_ir("addi,, t0,,, x6,, 0,,,", &empty_hash, &mut 0).unwrap()[0]
     );
 }
 
@@ -148,9 +170,7 @@ fn test_assemble_no_commas() {
     let empty_hash: HashMap<String, u32> = HashMap::new();
     assert_eq!(
         instructions::ADDI_X5_X6_0,
-        assemble_ir("addi t0 x6 0", &empty_hash, 0)
-            .unwrap()
-            .unwrap()
+        assemble_ir("addi t0 x6 0", &empty_hash, &mut 0).unwrap()[0]
     );
 }
 
@@ -159,9 +179,7 @@ fn test_assemble_uppercase() {
     let empty_hash: HashMap<String, u32> = HashMap::new();
     assert_eq!(
         instructions::ADDI_X5_X6_0,
-        assemble_ir("ADDI T0, X6, 0", &empty_hash, 0)
-            .unwrap()
-            .unwrap()
+        assemble_ir("ADDI T0, X6, 0", &empty_hash, &mut 0).unwrap()[0]
     );
 }
 
@@ -170,9 +188,7 @@ fn test_assemble_random_case() {
     let empty_hash: HashMap<String, u32> = HashMap::new();
     assert_eq!(
         instructions::ADDI_X5_X6_0,
-        assemble_ir("aDdI t0, X6, 0", &empty_hash, 0)
-            .unwrap()
-            .unwrap()
+        assemble_ir("aDdI t0, X6, 0", &empty_hash, &mut 0).unwrap()[0]
     );
 }
 
@@ -181,9 +197,7 @@ fn test_assemble_lower_case() {
     let empty_hash: HashMap<String, u32> = HashMap::new();
     assert_eq!(
         instructions::ADDI_X5_X6_0,
-        assemble_ir("addi t0, x6, 0", &empty_hash, 0)
-            .unwrap()
-            .unwrap()
+        assemble_ir("addi t0, x6, 0", &empty_hash, &mut 0).unwrap()[0]
     );
 }
 
@@ -193,27 +207,19 @@ fn test_assemble_i_type() {
 
     assert_eq!(
         instructions::ADDI_X5_X6_0,
-        assemble_ir("addi t0, x6, 0", &empty_hash, 0)
-            .unwrap()
-            .unwrap()
+        assemble_ir("addi t0, x6, 0", &empty_hash, &mut 0).unwrap()[0]
     );
     assert_eq!(
         instructions::ADDI_X0_X0_17,
-        assemble_ir("addi zero, x0, 17", &empty_hash, 0)
-            .unwrap()
-            .unwrap()
+        assemble_ir("addi zero, x0, 17", &empty_hash, &mut 0).unwrap()[0]
     );
     assert_eq!(
         instructions::ADDI_X5_X6_NEG_12,
-        assemble_ir("addi t0, t1, -12", &empty_hash, 0)
-            .unwrap()
-            .unwrap()
+        assemble_ir("addi t0, t1, -12", &empty_hash, &mut 0).unwrap()[0]
     );
     assert_eq!(
         instructions::LW_X5_0_X5,
-        assemble_ir("lw x5, 0(x5)", &empty_hash, 0)
-            .unwrap()
-            .unwrap()
+        assemble_ir("lw x5, 0(x5)", &empty_hash, &mut 0).unwrap()[0]
     )
 }
 
@@ -222,11 +228,11 @@ fn test_assemble_u_type() {
     let empty_hash: HashMap<String, u32> = HashMap::new();
     assert_eq!(
         instructions::AUIPC_X5_4,
-        assemble_ir("auipc x5, 4", &empty_hash, 0).unwrap().unwrap()
+        assemble_ir("auipc x5, 4", &empty_hash, &mut 0).unwrap()[0]
     );
     assert_eq!(
         instructions::LUI_X5_4,
-        assemble_ir("lui x5, 4", &empty_hash, 0).unwrap().unwrap()
+        assemble_ir("lui x5, 4", &empty_hash, &mut 0).unwrap()[0]
     );
 }
 
@@ -235,15 +241,11 @@ fn test_assemble_b_type() {
     let empty_hash: HashMap<String, u32> = HashMap::new();
 
     let expect = instructions::BEQ_X5_X5_12;
-    let actual = assemble_ir("beq x5, x5, 12", &empty_hash, 0)
-        .unwrap()
-        .unwrap();
+    let actual = assemble_ir("beq x5, x5, 12", &empty_hash, &mut 0).unwrap()[0];
     assert_eq!(expect, actual);
 
     let expect = instructions::BNE_X5_X5_76;
-    let actual = assemble_ir("bne t0, t0, 76", &empty_hash, 0)
-        .unwrap()
-        .unwrap();
+    let actual = assemble_ir("bne t0, t0, 76", &empty_hash, &mut 0).unwrap()[0];
     assert_eq!(expect, actual);
 }
 
@@ -254,19 +256,17 @@ fn test_assemble_with_label() {
 
     assert_eq!(
         instructions::LUI_X5_4,
-        assemble_ir(ir, &labels, 0).unwrap().unwrap()
+        assemble_ir(ir, &labels, &mut 0).unwrap()[0]
     );
 
     assert_eq!(0, *(labels.get("loop").unwrap()));
 
     let expect = instructions::JAL_X0_NEG_4;
-    let actual = assemble_ir("jal x0, loop", &labels, 4).unwrap().unwrap();
+    let actual = assemble_ir("jal x0, loop", &labels, &mut 4).unwrap()[0];
     assert_eq!(expect, actual);
 
     let expect = instructions::BNE_X0_X5_NEG_4;
-    let actual = assemble_ir("bne x0, t0, loop", &labels, 4)
-        .unwrap()
-        .unwrap();
+    let actual = assemble_ir("bne x0, t0, loop", &labels, &mut 4).unwrap()[0];
     assert_eq!(expect, actual);
 }
 
