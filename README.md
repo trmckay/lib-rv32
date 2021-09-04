@@ -150,3 +150,12 @@ Disassembly of section .text.init:
 ```
 
 Tests are run in CI, but can be run locally provided your system has `riscv(32|64)-unknown-elf-gcc`.
+
+# TODO
+
+- IMAC support
+- Better logging
+- Asynchronous I/O
+- Better WASM support/demo
+- More descriptive errors/stricter assembler
+- E2E testing
