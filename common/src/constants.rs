@@ -30,6 +30,7 @@ pub const FUNC3_XOR: u8 = 0b100;
 pub const FUNC3_SR: u8 = 0b101;
 pub const FUNC3_OR: u8 = 0b110;
 pub const FUNC3_AND: u8 = 0b111;
+pub const FUNC3_JALR:u8 = 0b000;
 
 pub const FUNC7_ADD: u8 = 0b0000000;
 pub const FUNC7_SUB: u8 = 0b0100000;

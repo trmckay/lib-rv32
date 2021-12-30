@@ -19,4 +19,4 @@ log = "0.4.*"
 lib-rv32-common = "0.2.*"
 
 [dev-dependencies]
-lib-rv32-isa = "0.2.*"
+lib-rv32-isa = {git = "https://github.com/buguOS/lib-rv32"}
