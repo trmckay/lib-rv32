@@ -16,7 +16,7 @@ path = "src/lib.rs"
 
 [dependencies]
 log = "0.4.*"
-lib-rv32-common = {file = "../common"}
+lib-rv32-common = {path = "../common"}
 
 [dev-dependencies]
 lib-rv32-isa = "0.2.*"
